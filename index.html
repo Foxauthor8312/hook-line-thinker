@@ -21,6 +21,21 @@
 #gameMicBars i{display:block;height:5px;border-radius:2px;background:#dbe3ec}
 #gameMicState{font-size:10px;font-weight:700;color:#64748b;white-space:nowrap}
 @media(max-width:650px){#globalVoiceBar{flex-wrap:wrap}#gameMicMeter{margin-left:0}}
+
+/* Compact classroom controls and board-overlay clue panel */
+#game{position:relative}
+#game .board{margin-bottom:8px}
+#game .tile{padding:8px 4px;min-height:48px}
+#game button{padding:5px 9px;font-size:12px;line-height:1.15;border-radius:6px}
+#game .actions{gap:6px;margin:6px 0}
+#game .panel{position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,94%);max-height:80%;overflow:auto;margin:0;padding:18px 20px;box-shadow:0 16px 50px rgba(0,0,0,.38);border:2px solid var(--blue);background:#fff}
+#game .panel h2{margin:0 0 10px;font-size:20px}
+#game .panel .clue{font-size:19px;line-height:1.45}
+#game .panel .answer{margin-top:14px;padding:10px 12px;font-size:17px}
+#backupControls{display:flex;justify-content:center;align-items:center;gap:6px;min-height:0;margin:5px auto 10px}
+#backupControls.hidden{display:none}
+#backupControls button{padding:4px 10px;font-size:11px;min-height:25px}
+#game .scores{margin-top:8px}
 </style></head><body><header><h1>HOOK, LINE &amp; THINKER</h1><div class="sub">THE FISHING KNOWLEDGE CHALLENGE</div></header><main>
 <div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div class="mic" id="mic"><span class="dot"></span><span id="micLabel">Voice off</span> <button id="voiceToggle">VOICE ON</button></div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div></div>
 <div class="topbar"><div class="status" id="setupStatus">Set up your teams to begin.</div></div>
@@ -42,7 +57,7 @@
 </section>
 <section id="game" class="hidden"><div class="topbar"><div class="status" id="turnStatus">Choose a category and value.</div></div><div class="board" id="board"></div>
 <div class="scores"><div class="team" id="teamBox0"><input id="teamName0" value="Team 1"><div class="score" id="score0">0</div></div><div class="reel">🎣</div><div class="team" id="teamBox1"><input id="teamName1" value="Team 2"><div class="score" id="score1">0</div></div></div>
-<section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><div class="actions"><button id="read">READ CLUE</button><button id="listenAnswer" class="primary">LISTEN FOR ANSWER</button><button id="reveal">REVEAL ANSWER</button><button id="correct" class="good">CORRECT</button><button id="incorrect" class="bad">INCORRECT</button><button id="back">BACK TO BOARD</button></div><p class="small" id="responseText"></p></section>
+<div id="backupControls" class="compact-controls hidden"><button id="reveal" class="primary">ANSWER</button><button id="correct" class="good hidden">CORRECT</button><button id="incorrect" class="bad hidden">INCORRECT</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
 <div class="actions"><button id="pauseVoice">PAUSE VOICE</button><button id="reset">RESET GAME</button></div></section></main>
 <script>
 const questions=[{"category":"Knot Tying","value":10,"clue":"This knot is commonly used to attach fishing line directly to a hook or swivel. It is one of the basic knots students practice in class.","answer":"What is the Improved Clinch Knot?","alternatives":["Improved Clinch."],"note":""},{"category":"Knot Tying","value":20,"clue":"This knot uses a doubled line passed through the hook eye and a loop to create a strong connection.","answer":"What is the Palomar Knot?","alternatives":["Palomar."],"note":""},{"category":"Knot Tying","value":30,"clue":"This knot creates a fixed loop that allows a lure to move more freely rather than being tied tightly against the line.","answer":"What is the Non-Sliding Loop Knot?","alternatives":["Non-Slip Loop Knot","Loop Knot."],"note":""},{"category":"Knot Tying","value":40,"clue":"You need to connect your braided main line to a fluorocarbon leader. This knot uses two joining knots tied back-to-back.","answer":"What is the Double Uni Knot?","alternatives":["Double Uni."],"note":""},{"category":"Knot Tying","value":50,"clue":"Before fishing, you inspect a finished knot and notice it is poorly seated or damaged. According to the course, what should you do rather than trust that connection?","answer":"What is cut it off and retie it?","alternatives":["Retie the knot","replace the connection."],"note":""},{"category":"Fish Species","value":10,"clue":"This is one of the primary target fish covered in the course. The instructor discusses stocked fish behavior, seasonal movements, and shore or dock fishing.","answer":"What is a trout?","alternatives":["Trout."],"note":""},{"category":"Fish Species","value":20,"clue":"This fish is the subject of a course module that emphasizes structure, seasonal patterns, morning versus afternoon fishing, lure selection, and hooksets.","answer":"What is a bass?","alternatives":["Bass","largemouth bass."],"note":""},{"category":"Fish Species","value":30,"clue":"Lake Mead and Lake Mohave are two Nevada waters specifically discussed in connection with this fish.","answer":"What is a striped bass?","alternatives":["Striper","stripers."],"note":""},{"category":"Fish Species","value":40,"clue":"When fishing for this species, the course emphasizes shad as an important forage fish and discusses schooling activity, birds, and surface boils.","answer":"What is a striped bass?","alternatives":["Striper."],"note":""},{"category":"Fish Species","value":50,"clue":"You're preparing a beginner tackle box for trout. According to the instructor's recommended example, which artificial lure is included alongside PowerBait, hooks, split shot, and bobbers?","answer":"What is a Rooster Tail or Kastmaster?","alternatives":["Either Rooster Tail or Kastmaster."],"note":""},{"category":"Tackle Equipment","value":10,"clue":"This reel has a closed face and uses a push-button casting control. It is often recommended as an easy system for beginners.","answer":"What is a spincast reel?","alternatives":["Spincast."],"note":""},{"category":"Tackle Equipment","value":20,"clue":"This reel has an exposed spool and hangs below the rod. It is a versatile and popular choice in the beginner setup.","answer":"What is a spinning reel?","alternatives":["Spinning reel."],"note":""},{"category":"Tackle Equipment","value":30,"clue":"This reel uses a rotating spool and commonly has a thumb-bar release. The weight of the lure pulls line from the spool during a cast.","answer":"What is a baitcasting reel?","alternatives":["Baitcaster."],"note":""},{"category":"Tackle Equipment","value":40,"clue":"The course recommends a beginner spinning setup with a rod length of approximately this measurement.","answer":"What is 6½ to 7 feet?","alternatives":["Six and a half to seven feet."],"note":""},{"category":"Tackle Equipment","value":50,"clue":"This type of fishing line is made from multiple woven strands, is known for its strength, and has very little stretch.","answer":"What is braided line?","alternatives":["Braid."],"note":""},{"category":"Terminal Tackle","value":10,"clue":"This small metal component is pinched onto the fishing line to add weight and help position bait or a lure.","answer":"What is split shot?","alternatives":["Split-shot weight."],"note":""},{"category":"Terminal Tackle","value":20,"clue":"This floating device suspends bait at a selected depth and can help an angler detect a bite.","answer":"What is a bobber?","alternatives":["Float."],"note":""},{"category":"Terminal Tackle","value":30,"clue":"This connection hardware helps prevent line twist by allowing the attached line or lure to rotate.","answer":"What is a swivel?","alternatives":["Fishing swivel."],"note":""},{"category":"Terminal Tackle","value":40,"clue":"This piece of line connects the main fishing line to the terminal tackle. It can be useful when a different line type or strength is needed near the hook or lure.","answer":"What is a leader?","alternatives":["Leader line."],"note":""},{"category":"Terminal Tackle","value":50,"clue":"In this rig, the weight is positioned above a hook and bait or lure, allowing the presentation to be fished at a controlled depth above the bottom.","answer":"What is a Drop Shot Rig?","alternatives":["Drop-shot."],"note":""},{"category":"Baits & Lures","value":10,"clue":"This artificial lure family includes examples such as spinners, jigs, and spoons, which are covered in the trout portion of the course.","answer":"What are artificial lures?","alternatives":["Fishing lures."],"note":""},{"category":"Baits & Lures","value":20,"clue":"This natural bait is included in the beginner trout tackle box and is often stored in a jar or container.","answer":"What is PowerBait?","alternatives":["Power Bait."],"note":""},{"category":"Baits & Lures","value":30,"clue":"This artificial bass lure is made of soft plastic and is included in the beginner bass tackle box.","answer":"What is a plastic worm?","alternatives":["Soft plastic worm."],"note":""},{"category":"Baits & Lures","value":40,"clue":"This natural bait is specifically listed among the common striped-bass baits and is used in an anchovy rig.","answer":"What is an anchovy?","alternatives":["Anchovies."],"note":""},{"category":"Baits & Lures","value":50,"clue":"You have selected a lure, but the fish aren't responding. The course teaches that you can change how quickly or slowly you work the lure without changing the lure itself. What are you changing?","answer":"What is the retrieve speed?","alternatives":["Retrieve","presentation speed."],"note":""},{"category":"Water Safety","value":10,"clue":"Before casting, students should be aware of this area behind them so they do not strike another person with a hook or lure.","answer":"What is the backcast area?","alternatives":["Casting safety area","safety perimeter."],"note":""},{"category":"Water Safety","value":20,"clue":"Hooks should be kept in this condition whenever fishing rods and equipment are being carried or moved.","answer":"What is secured?","alternatives":["Hooks secured","hooks covered or restrained."],"note":""},{"category":"Water Safety","value":30,"clue":"Before a fishing trip, you leave information with someone about where you are going and how long you expect to be there. What is this an important part of?","answer":"What is a fishing plan?","alternatives":["Trip plan","letting someone know your plans."],"note":""},{"category":"Water Safety","value":40,"clue":"This protective coating on a fish can be damaged by unnecessary handling. The course emphasizes using wet hands when handling fish.","answer":"What is the fish's slime coating?","alternatives":["Protective slime layer","mucus coating."],"note":""},{"category":"Water Safety","value":50,"clue":"You have hooked a fish and are preparing to land it. The course teaches that you should have your landing area and tools ready before the fish arrives. Why?","answer":"What is to make the landing and handling process safe and controlled?","alternatives":["To be prepared to land the fish safely","to minimize unnecessary handling and time out of water."],"note":""}];
@@ -64,7 +79,7 @@ function draw(){
  cats.forEach(c=>{const h=document.createElement('div');h.className='category';h.textContent=c;board.append(h);});
  for(const v of [10,20,30,40,50])for(const c of cats){
   const q=questions.find(x=>x.category===c&&x.value===v);
-  const b=document.createElement('button');b.className='tile';b.textContent=v;
+  const b=document.createElement('button');b.className='tile';b.textContent=q?.used?'':v;
   b.disabled=!q||!q.clue||!q.answer||q.used;b.classList.toggle('used',!!q?.used);
   b.setAttribute('aria-label',c+' for '+v);b.onclick=()=>openClue(q);board.append(b);
  }
@@ -75,16 +90,16 @@ function openClue(q){
  $('answer').classList.add('hidden');$('note').classList.add('hidden');
  $('answer').textContent='Correct response: '+q.answer+((q.alternatives||[]).length?' (also accepted: '+q.alternatives.join(', ')+')':'');
  $('note').textContent=q.note||'';$('panel').classList.remove('hidden');
+ $('backupControls').classList.remove('hidden');$('reveal').classList.remove('hidden');$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');
  $('turnStatus').textContent=teams[active]+' is answering.';
- $('responseText').textContent='Host reads the clue. Microphone paused. Select LISTEN FOR ANSWER when the contestant is ready.';
- mic(false,'Mic paused for clue');
+ $('responseText').textContent='The student is responding. Say “Answer please” when ready to reveal.';
+ mic(false,'Listening for “Answer please”');if(voiceOn)startListening();
 }
-function answerMode(){if(!current)return;phase='answer';$('responseText').textContent='Listening for the contestant’s “What is…” or “Who is…” response.';say('Your response, please. What is, or who is?');startListening();}
-function hostMode(){phase='host';$('responseText').textContent='Host: say “Correct” or “Incorrect.”';say('Host, was that correct or incorrect?');startListening();}
-function reveal(){if(!current)return;$('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);say('The correct response is '+current.answer);}
+function hostMode(){phase='host';$('responseText').textContent='Host: say “Correct” or “Incorrect.”';$('reveal').classList.add('hidden');$('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');say('Host, was that correct or incorrect?');startListening();}
+function reveal(){if(!current)return;$('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);say('The correct response is '+current.answer);hostMode();}
 function judge(ok){
  if(!current)return;stopListening();if(ok)scores[active]+=Number(current.value);else active=1-active;
- updateScores();$('panel').classList.add('hidden');current=null;phase='board';
+ updateScores();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');current=null;phase='board';
  $('turnStatus').textContent=teams[active]+' selects next. Say “We’ll take, category, for, value.”';
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
@@ -169,10 +184,8 @@ function chooseVoice(transcript){
   }else if(transcript.trim()){
    $('globalStatus').textContent='Heard: '+transcript+' — say a category and a value (for example, Knot Tying for ten).';
   }
- }else if(phase==='answer'){
-  if(/\bwhat is\b|\bwho is\b|\bwhat are\b|\bwho are\b/.test(s)){
-   $('responseText').textContent='Student response captured: '+transcript;say('Thank you.');stopListening();hostMode();
-  }
+ }else if(phase==='clue'){
+  if(/\banswer please\b|\bshow the answer\b|\breveal the answer\b/.test(s))reveal();
  }else if(phase==='host'){
   if(/\bincorrect\b|\bwrong answer\b/.test(s))judge(false);
   else if(/\bcorrect\b/.test(s))judge(true);
@@ -187,7 +200,7 @@ function initVoice(){
  rec.onend=()=>{
   listening=false;
   if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
-  if(voiceOn&&!recognitionBlocked&&phase!=='clue'){
+  if(voiceOn&&!recognitionBlocked&&phase!=='none'){
    mic(false,lastRecognitionError ? 'Speech stopped: '+lastRecognitionError : 'Ready — waiting for your next command');
    if(!lastRecognitionError)restartTimer=setTimeout(()=>{restartTimer=null;startListening();},500);
   }else if(!voiceOn)mic(false,'Voice off');
@@ -268,7 +281,6 @@ $('goBoard').onclick=()=>{
  $('turnStatus').textContent=teams[active]+' selects first. Say “We’ll take, category, for, value.”';
  if(voiceOn)startListening();
 };
-$('read').onclick=()=>say($('clue').textContent);$('listenAnswer').onclick=answerMode;
 $('reveal').onclick=reveal;$('correct').onclick=()=>judge(true);$('incorrect').onclick=()=>judge(false);
 $('back').onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
 $('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').textContent='VOICE ON';mic(false,'Voice paused');};

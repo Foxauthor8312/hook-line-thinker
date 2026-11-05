@@ -84,22 +84,46 @@ function draw(){
   b.setAttribute('aria-label',c+' for '+v);b.onclick=()=>openClue(q);board.append(b);
  }
 }
+let attempts=0, lastScoringTeam=0;
 function openClue(q){
- if(!q||q.used)return;current=q;q.used=true;draw();phase='clue';stopListening();
+ if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='host';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
  $('answer').classList.add('hidden');$('note').classList.add('hidden');
  $('answer').textContent='Correct response: '+q.answer+((q.alternatives||[]).length?' (also accepted: '+q.alternatives.join(', ')+')':'');
  $('note').textContent=q.note||'';$('panel').classList.remove('hidden');
- $('backupControls').classList.remove('hidden');$('reveal').classList.remove('hidden');$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');
+ $('backupControls').classList.remove('hidden');$('reveal').classList.add('hidden');$('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');
  $('turnStatus').textContent=teams[active]+' is answering.';
- $('responseText').textContent='The student is responding. Say “Answer please” when ready to reveal.';
- mic(false,'Listening for “Answer please”');if(voiceOn)startListening();
+ $('responseText').textContent='Host: listen to the response, then say “Correct” or “Incorrect.”';
+ mic(false,'Listening for host ruling');if(voiceOn)startListening();
 }
-function hostMode(){phase='host';$('responseText').textContent='Host: say “Correct” or “Incorrect.”';$('reveal').classList.add('hidden');$('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');say('Host, was that correct or incorrect?');startListening();}
-function reveal(){if(!current)return;$('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);say('The correct response is '+current.answer);hostMode();}
+function reveal(){
+ if(!current)return;
+ $('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);
+ phase='await_turn';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('reveal').classList.add('hidden');
+ $('reveal').textContent='YOUR TURN';$('reveal').classList.remove('hidden');
+ $('responseText').textContent='Answer revealed. Host: say “Your turn” to return to the board.';
+ say('The correct response is '+current.answer+'. Host, say your turn when ready.');
+ if(voiceOn)startListening();
+}
 function judge(ok){
- if(!current)return;stopListening();if(ok)scores[active]+=Number(current.value);else active=1-active;
- updateScores();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');current=null;phase='board';
+ if(!current||phase!=='host')return;
+ stopListening();
+ if(ok){
+  scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal();
+ }else if(attempts===0){
+  attempts=1;active=1-active;updateScores();
+  $('turnStatus').textContent=teams[active]+' gets the chance to answer.';
+  $('responseText').textContent='Incorrect. '+teams[active]+' gets a chance. Host: say “Correct” or “Incorrect” after their response.';
+  say('Incorrect. The other team gets a chance.');
+  if(voiceOn)startListening();
+ }else{
+  reveal();
+ }
+}
+function finishClue(){
+ if(!current||phase!=='await_turn')return;
+ stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
+ $('reveal').textContent='ANSWER';current=null;phase='board';
  $('turnStatus').textContent=teams[active]+' selects next. Say “We’ll take, category, for, value.”';
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
@@ -184,11 +208,11 @@ function chooseVoice(transcript){
   }else if(transcript.trim()){
    $('globalStatus').textContent='Heard: '+transcript+' — say a category and a value (for example, Knot Tying for ten).';
   }
- }else if(phase==='clue'){
-  if(/\banswer please\b|\bshow the answer\b|\breveal the answer\b/.test(s))reveal();
  }else if(phase==='host'){
   if(/\bincorrect\b|\bwrong answer\b/.test(s))judge(false);
   else if(/\bcorrect\b/.test(s))judge(true);
+ }else if(phase==='await_turn'){
+  if(/\byour turn\b|\bback to the board\b|\bnext question\b/.test(s))finishClue();
  }
 }
 function initVoice(){
@@ -281,7 +305,7 @@ $('goBoard').onclick=()=>{
  $('turnStatus').textContent=teams[active]+' selects first. Say “We’ll take, category, for, value.”';
  if(voiceOn)startListening();
 };
-$('reveal').onclick=reveal;$('correct').onclick=()=>judge(true);$('incorrect').onclick=()=>judge(false);
+$('reveal').onclick=finishClue;$('correct').onclick=()=>judge(true);$('incorrect').onclick=()=>judge(false);
 $('back').onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
 $('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').textContent='VOICE ON';mic(false,'Voice paused');};
 $('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();updateScores();if(voiceOn)startListening();};

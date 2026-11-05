@@ -39,7 +39,7 @@
 </style></head><body><header><h1>HOOK, LINE &amp; THINKER</h1><div class="sub">THE FISHING KNOWLEDGE CHALLENGE</div></header><main>
 <div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div class="mic" id="mic"><span class="dot"></span><span id="micLabel">Voice off</span> <button id="voiceToggle">VOICE ON</button></div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div></div>
 <div class="topbar"><div class="status" id="setupStatus">Set up your teams to begin.</div></div>
-<section id="setup" class="screen"><h2>Welcome, teams!</h2><p>Enter your team names to get started.</p><input id="team1Input" value="Team 1"><input id="team2Input" value="Team 2"><div class="actions"><button class="primary" id="startBtn">CONTINUE</button></div><p class="small">Chrome desktop is recommended for voice commands. Mouse controls are always available.</p></section>
+<section id="setup" class="screen"><h2>Welcome, teams!</h2><p>Enter your team names to get started.</p><input id="team1Input" value="Team 1"><input id="team2Input" value="Team 2"><div class="actions"><button class="primary" id="startBtn">REVIEW THE RULES</button></div><div id="rulesPanel" class="panel hidden" style="position:static;transform:none;margin:18px auto 0;max-height:none"><h2>HOW TO PLAY</h2><p><b>1. PICK A CLUE</b><br>Teams take turns selecting a category and point value. A coin toss determines who starts.</p><p><b>2. THINK IT THROUGH</b><br>Listen to the clue. Teams may discuss before the team leader responds.</p><p><b>3. ANSWER IN THE FORM OF A QUESTION</b><br>The host decides whether the answer is correct.</p><p><b>4. SCORING</b><br>Correct answers earn the displayed points. Incorrect answers give the other team a chance.</p><p><b>5. KEEP THE GAME MOVING</b><br>The team that answers correctly selects next. If neither team is correct, play passes to the opposing team.</p><p><b>6. SPECIAL CHALLENGES</b><br><b>THINKS MORE:</b> A surprise wager clue. Correct adds the wager; incorrect deducts it. No steal opportunity.<br><b>THINKS HARDER:</b> The final challenge. Both teams secretly wager points and answer the same question independently.</p><p class="small">The team leader gives the official answer. Wagers cannot exceed the team's current score. The host's ruling is final.</p><h2 style="color:#19304B">THINK IT THROUGH. WORK TOGETHER. REEL IN THE WIN!</h2><div class="actions"><button class="primary" id="letsPlayBtn">LET'S PLAY!</button></div></div><p class="small">Chrome desktop is recommended for voice commands. Mouse controls are always available.</p></section>
 <section id="coin" class="screen hidden coin-screen">
  <h2>Who goes first?</h2>
  <p id="coinPrompt">Captain, call it: Heads or Tails.</p>
@@ -181,10 +181,11 @@ function flipCoin(){
 }
 function chooseVoice(transcript){
  const s=transcript.toLowerCase();
+ if($('globalStatus'))$('globalStatus').textContent='Heard: '+transcript;
  if(phase==='coin'){
-  if(/\bheads\b/.test(s))coinCall('Heads');
-  else if(/\btails\b/.test(s))coinCall('Tails');
-  else if(/\bflip it\b|\bflip the coin\b/.test(s))flipCoin();
+  if(/\bheads\b|\bhead\b/.test(s))coinCall('Heads');
+  else if(/\btails\b|\btail\b/.test(s))coinCall('Tails');
+  else if(/\bflip it\b|\bflip the coin\b|\bgo ahead and flip\b|\bflip\b/.test(s))flipCoin();
  }else if(phase==='board'){
   // Speech engines often return spoken numbers as words, not digits.
   const numberWords={ten:10,twenty:20,thirty:30,forty:40,fifty:50};
@@ -209,10 +210,10 @@ function chooseVoice(transcript){
    $('globalStatus').textContent='Heard: '+transcript+' — say a category and a value (for example, Knot Tying for ten).';
   }
  }else if(phase==='host'){
-  if(/\bincorrect\b|\bwrong answer\b/.test(s))judge(false);
-  else if(/\bcorrect\b/.test(s))judge(true);
+  if(/\bincorrect\b|\bwrong answer\b|\bthat's wrong\b|\bnot correct\b|\bnope\b/.test(s))judge(false);
+  else if(/\bcorrect\b|\bthat's right\b|\bright answer\b|\byes\b/.test(s))judge(true);
  }else if(phase==='await_turn'){
-  if(/\byour turn\b|\bback to the board\b|\bnext question\b/.test(s))finishClue();
+  if(/\byour turn\b|\bback to the board\b|\bnext question\b|\bchoose again\b|\bselect the next clue\b/.test(s))finishClue();
  }
 }
 function initVoice(){
@@ -292,7 +293,8 @@ $('voiceToggle').onclick=()=>{
  voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'VOICE OFF':'VOICE ON';
  if(voiceOn){startGameMicMeter();recognitionBlocked=false;startListening();}else{stopListening();stopGameMicMeter();mic(false,'Voice off');}
 };
-$('startBtn').onclick=()=>{
+$('startBtn').onclick=()=>{$('rulesPanel').classList.remove('hidden');$('startBtn').classList.add('hidden');};
+$('letsPlayBtn').onclick=()=>{
  teams=[$('team1Input').value.trim()||'Team 1',$('team2Input').value.trim()||'Team 2'];
  $('teamName0').value=teams[0];$('teamName1').value=teams[1];
  screen('coin');phase='coin';if($('globalStatus'))$('globalStatus').textContent='Coin toss: call Heads or Tails, then say Flip it.';

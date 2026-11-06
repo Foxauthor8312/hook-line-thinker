@@ -193,7 +193,7 @@ function finishClue(){
  say(teams[active]+', choose another clue.');
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
-function coinCall(v){called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;say(v+'. Say flip it when ready.');}
+function coinCall(v){called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;speakThenListen(v+'. Say flip it when ready.');}
 function flipCoin(){
  if(!called||busyFlip)return;busyFlip=true;stopListening();
  const outcome=Math.random()<.5?'heads':'tails';

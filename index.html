@@ -117,14 +117,24 @@ function announceDecision(ok,transcript){
  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.remove('hidden');
  say(pendingDecision?'Correct!':'Incorrect!');
 }
-function reveal(){
+function reveal(wasCorrect){
  if(!current)return;
+ stopListening();
  $('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);
- phase='await_turn';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.remove('hidden');
- $('reveal').textContent='YOUR TURN';
- $('responseText').textContent='Answer revealed. Host: say “Your turn” when ready.';
- say('The correct response is '+current.answer+'. Host, say your turn when ready.');
- if(voiceOn)startListening();
+ phase='auto_close';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
+ $('responseText').textContent='Answer displayed. The clue will close automatically in 5 seconds.';
+ say('The correct response is '+current.answer+'.');
+ const revealedClue=current;
+ setTimeout(()=>{
+  if(current!==revealedClue||phase!=='auto_close')return;
+  $('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
+  current=null;phase='board';
+  const nextPrompt=wasCorrect?teams[active]+', select another clue.':'Game goes to '+teams[active]+'. Choose a clue.';
+  $('turnStatus').textContent=nextPrompt;
+  $('responseText').textContent=nextPrompt;
+  say(nextPrompt);
+  if(voiceOn){mic(false,'Ready for board selection');startListening();}
+ },5000);
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;
@@ -136,7 +146,7 @@ function confirmDecision(){
  if(!current||phase!=='decision'||pendingDecision===null)return;
  stopListening();
  if(pendingDecision){
-  scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal();
+  scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal(true);
  }else if(attempts===0){
   attempts=1;active=1-active;updateScores();phase='student_answer';
   $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.add('hidden');
@@ -146,7 +156,7 @@ function confirmDecision(){
   say('Incorrect. '+teams[active]+', you have a chance to answer.');
   if(voiceOn)startListening();
  }else{
-  active=1-active;updateScores();reveal();
+  active=1-active;updateScores();reveal(false);
  }
 }
 function finishClue(){

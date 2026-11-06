@@ -68,6 +68,14 @@ let voiceOn=false,rec=null,listening=false,phase='setup',recognitionBlocked=fals
 function screen(id){['preflight','setup','coin','game'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
 let selectedSpeechVoice=null;
 function say(t){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;speechSynthesis.speak(u);}
+function speakThenListen(t){
+ stopListening();
+ if(!('speechSynthesis'in window)){if(voiceOn)startListening();return;}
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;
+ let resumed=false;const resume=()=>{if(resumed)return;resumed=true;if(voiceOn&&phase==='coin')setTimeout(startListening,350);};
+ u.onend=resume;u.onerror=resume;speechSynthesis.speak(u);
+}
 function populateSpeechVoices(){
  if(!('speechSynthesis'in window))return;
  const select=$('speechVoiceSelect');if(!select)return;
@@ -364,8 +372,7 @@ $('letsPlayBtn').onclick=()=>{
  teams=[$('team1Input').value.trim()||'Team 1',$('team2Input').value.trim()||'Team 2'];
  $('teamName0').value=teams[0];$('teamName1').value=teams[1];
  screen('coin');phase='coin';if($('globalStatus'))$('globalStatus').textContent='Coin toss: call Heads or Tails, then say Flip it.';
- say('All right teams. Let’s see who goes first. Captain, call it.');
- if(voiceOn)startListening();
+ speakThenListen('All right teams. Let’s see who goes first. Captain, call heads or tails.');
 };
 $('heads').onclick=()=>coinCall('Heads');$('tails').onclick=()=>coinCall('Tails');$('flip').onclick=flipCoin;
 $('goBoard').onclick=()=>{

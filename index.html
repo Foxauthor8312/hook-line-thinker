@@ -65,6 +65,7 @@ const questions=[{"category":"Knot Tying","value":10,"clue":"This knot is common
 const $=id=>document.getElementById(id);
 let teams=['Team 1','Team 2'],scores=[0,0],active=0,current=null,called=null;
 let voiceOn=false,rec=null,listening=false,phase='setup',recognitionBlocked=false,busyFlip=false,face='heads';
+let boardCommandBuffer='',boardCommandTime=0;
 function screen(id){['preflight','setup','coin','game'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
 let selectedSpeechVoice=null;
 function say(t){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;speechSynthesis.speak(u);}
@@ -253,12 +254,18 @@ function chooseVoice(transcript){
   else if(/\btails\b|\btail\b/.test(s))coinCall('Tails');
   else if(/\bflip it\b|\bflip the coin\b|\bgo ahead and flip\b|\bflip\b/.test(s))flipCoin();
  }else if(phase==='board'){
+  // Speech engines may split one spoken selection across several final results.
+  const now=Date.now();
+  if(now-boardCommandTime>7000)boardCommandBuffer='';
+  boardCommandTime=now;
+  boardCommandBuffer=(boardCommandBuffer+' '+transcript).trim().slice(-240);
+  const commandText=boardCommandBuffer.toLowerCase();
   // Speech engines often return spoken numbers as words, not digits.
   const numberWords={ten:10,twenty:20,thirty:30,forty:40,fifty:50};
-  const digitMatch=s.match(/\b(10|20|30|40|50)\b/);
-  const wordMatch=s.match(/\b(ten|twenty|thirty|forty|fifty)\b/);
+  const digitMatch=commandText.match(/\b(10|20|30|40|50)\b/);
+  const wordMatch=commandText.match(/\b(ten|twenty|thirty|forty|fifty)\b/);
   const v=digitMatch?Number(digitMatch[1]):(wordMatch?numberWords[wordMatch[1]]:null);
-  const normalized=s.replace(/&/g,' and ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const normalized=commandText.replace(/&/g,' and ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
   const categoryAliases=[
    ['Knot Tying',['knot tying','knots']],
    ['Fish Species',['fish species','fish']],
@@ -270,10 +277,10 @@ function chooseVoice(transcript){
   const c=(categoryAliases.find(([name,aliases])=>aliases.some(a=>normalized.includes(a)))||[])[0];
   if(v&&c){
    const q=questions.find(x=>x.category===c&&x.value===v&&!x.used&&x.clue);
-   if(q){$('globalStatus').textContent='Heard: '+transcript+' — opening '+c+' for '+v;openClue(q);}
+   if(q){$('globalStatus').textContent='Heard: '+boardCommandBuffer+' — opening '+c+' for '+v;boardCommandBuffer='';boardCommandTime=0;openClue(q);}
    else $('globalStatus').textContent='Heard: '+transcript+' — that clue was already used.';
   }else if(transcript.trim()){
-   $('globalStatus').textContent='Heard: '+transcript+' — say a category and a value (for example, Knot Tying for ten).';
+   $('globalStatus').textContent='Building selection: '+boardCommandBuffer+' — say category and point value.';
   }
  }else if(phase==='student_answer'){
   if(transcript.trim()){

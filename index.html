@@ -282,7 +282,7 @@ function initVoice(){
  if(!SR){const v=$('voiceToggle');if(v)v.disabled=true;mic(false,'Chrome speech recognition unavailable — update Chrome or use manual controls');return;}
  rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;rec.maxAlternatives=1;
  let restartTimer=null,lastRecognitionError='';
- rec.onstart=()=>{listening=true;recognitionBlocked=false;mic(true,'Listening — '+phase);};
+ rec.onstart=()=>{listening=true;recognitionBlocked=false;mic(true,'Listening — '+phase);if($('voiceCheckMark')){$('voiceCheckMark').textContent='✓';$('voiceCheckMark').style.background='#42664b';}if($('voiceCheckText'))$('voiceCheckText').textContent='Speech recognition is listening for voice commands.';};
  rec.onend=()=>{
   listening=false;
   if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
@@ -329,7 +329,7 @@ async function startGameMicMeter(){
   if(levelContext.state==='suspended')await levelContext.resume();
   levelAnalyser=levelContext.createAnalyser();levelAnalyser.fftSize=1024;
   levelContext.createMediaStreamSource(levelStream).connect(levelAnalyser);
-  if(state)state.textContent='READY';
+  if(state)state.textContent='READY';if($('micCheckMark')){$('micCheckMark').textContent='✓';$('micCheckMark').style.background='#42664b';}if($('micCheckText'))$('micCheckText').textContent='Microphone permission granted. Speak and watch the MIC indicator respond.';
   const data=new Uint8Array(levelAnalyser.fftSize);
   const paint=()=>{
    if(!levelAnalyser)return;
@@ -352,7 +352,7 @@ function stopGameMicMeter(){
 $('voiceToggle').onclick=()=>{
  if(!rec)initVoice();if(!rec)return;
  voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'VOICE OFF':'VOICE ON';
- if(voiceOn){startGameMicMeter();recognitionBlocked=false;startListening();$('voiceCheckMark')?.replaceChildren(document.createTextNode('✓'));if($('voiceCheckMark'))$('voiceCheckMark').style.background='#42664b';if($('voiceCheckText'))$('voiceCheckText').textContent='Voice recognition enabled. Confirm the listening indicator appears.';}else{stopListening();stopGameMicMeter();mic(false,'Voice off');if($('voiceCheckMark')){$('voiceCheckMark').textContent='3';$('voiceCheckMark').style.background='#19304b';}}
+ if(voiceOn){startGameMicMeter();recognitionBlocked=false;startListening();}else{stopListening();stopGameMicMeter();mic(false,'Voice off');if($('voiceCheckMark')){$('voiceCheckMark').textContent='3';$('voiceCheckMark').style.background='#19304b';}}
 };
 $('speechVoiceSelect').onchange=()=>{const voices=speechSynthesis.getVoices();selectedSpeechVoice=voices.find(v=>v.voiceURI===$('speechVoiceSelect').value)||null;};
 $('testSpeechVoice').onclick=()=>{say('Welcome to Hook, Line and Thinker! Think it through, work together, and reel in the win!');$('audioCheckMark').textContent='✓';$('audioCheckMark').style.background='#42664b';$('audioCheckText').textContent='Voice sample played. Confirm that it is audible at classroom volume.';};

@@ -57,7 +57,7 @@
 </section>
 <section id="game" class="hidden"><div class="topbar"><div class="status" id="turnStatus">Choose a category and value.</div></div><div class="board" id="board"></div>
 <div class="scores"><div class="team" id="teamBox0"><input id="teamName0" value="Team 1"><div class="score" id="score0">0</div></div><div class="reel">🎣</div><div class="team" id="teamBox1"><input id="teamName1" value="Team 2"><div class="score" id="score1">0</div></div></div>
-<div id="backupControls" class="compact-controls hidden"><button id="reveal" class="primary">ANSWER</button><button id="correct" class="good hidden">CORRECT</button><button id="incorrect" class="bad hidden">INCORRECT</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
+<div id="backupControls" class="compact-controls hidden"><button id="correct" class="good hidden">OVERRIDE: CORRECT</button><button id="incorrect" class="bad hidden">OVERRIDE: INCORRECT</button><button id="confirmDecision" class="primary hidden">OK — CONTINUE</button><button id="reveal" class="primary hidden">REVEAL ANSWER</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
 <div class="actions"><button id="pauseVoice">PAUSE VOICE</button><button id="reset">RESET GAME</button></div></section></main>
 <script>
 const questions=[{"category":"Knot Tying","value":10,"clue":"This knot is commonly used to attach fishing line directly to a hook or swivel. It is one of the basic knots students practice in class.","answer":"What is the Improved Clinch Knot?","alternatives":["Improved Clinch."],"note":""},{"category":"Knot Tying","value":20,"clue":"This knot uses a doubled line passed through the hook eye and a loop to create a strong connection.","answer":"What is the Palomar Knot?","alternatives":["Palomar."],"note":""},{"category":"Knot Tying","value":30,"clue":"This knot creates a fixed loop that allows a lure to move more freely rather than being tied tightly against the line.","answer":"What is the Non-Sliding Loop Knot?","alternatives":["Non-Slip Loop Knot","Loop Knot."],"note":""},{"category":"Knot Tying","value":40,"clue":"You need to connect your braided main line to a fluorocarbon leader. This knot uses two joining knots tied back-to-back.","answer":"What is the Double Uni Knot?","alternatives":["Double Uni."],"note":""},{"category":"Knot Tying","value":50,"clue":"Before fishing, you inspect a finished knot and notice it is poorly seated or damaged. According to the course, what should you do rather than trust that connection?","answer":"What is cut it off and retie it?","alternatives":["Retie the knot","replace the connection."],"note":""},{"category":"Fish Species","value":10,"clue":"This is one of the primary target fish covered in the course. The instructor discusses stocked fish behavior, seasonal movements, and shore or dock fishing.","answer":"What is a trout?","alternatives":["Trout."],"note":""},{"category":"Fish Species","value":20,"clue":"This fish is the subject of a course module that emphasizes structure, seasonal patterns, morning versus afternoon fishing, lure selection, and hooksets.","answer":"What is a bass?","alternatives":["Bass","largemouth bass."],"note":""},{"category":"Fish Species","value":30,"clue":"Lake Mead and Lake Mohave are two Nevada waters specifically discussed in connection with this fish.","answer":"What is a striped bass?","alternatives":["Striper","stripers."],"note":""},{"category":"Fish Species","value":40,"clue":"When fishing for this species, the course emphasizes shad as an important forage fish and discusses schooling activity, birds, and surface boils.","answer":"What is a striped bass?","alternatives":["Striper."],"note":""},{"category":"Fish Species","value":50,"clue":"You're preparing a beginner tackle box for trout. According to the instructor's recommended example, which artificial lure is included alongside PowerBait, hooks, split shot, and bobbers?","answer":"What is a Rooster Tail or Kastmaster?","alternatives":["Either Rooster Tail or Kastmaster."],"note":""},{"category":"Tackle Equipment","value":10,"clue":"This reel has a closed face and uses a push-button casting control. It is often recommended as an easy system for beginners.","answer":"What is a spincast reel?","alternatives":["Spincast."],"note":""},{"category":"Tackle Equipment","value":20,"clue":"This reel has an exposed spool and hangs below the rod. It is a versatile and popular choice in the beginner setup.","answer":"What is a spinning reel?","alternatives":["Spinning reel."],"note":""},{"category":"Tackle Equipment","value":30,"clue":"This reel uses a rotating spool and commonly has a thumb-bar release. The weight of the lure pulls line from the spool during a cast.","answer":"What is a baitcasting reel?","alternatives":["Baitcaster."],"note":""},{"category":"Tackle Equipment","value":40,"clue":"The course recommends a beginner spinning setup with a rod length of approximately this measurement.","answer":"What is 6½ to 7 feet?","alternatives":["Six and a half to seven feet."],"note":""},{"category":"Tackle Equipment","value":50,"clue":"This type of fishing line is made from multiple woven strands, is known for its strength, and has very little stretch.","answer":"What is braided line?","alternatives":["Braid."],"note":""},{"category":"Terminal Tackle","value":10,"clue":"This small metal component is pinched onto the fishing line to add weight and help position bait or a lure.","answer":"What is split shot?","alternatives":["Split-shot weight."],"note":""},{"category":"Terminal Tackle","value":20,"clue":"This floating device suspends bait at a selected depth and can help an angler detect a bite.","answer":"What is a bobber?","alternatives":["Float."],"note":""},{"category":"Terminal Tackle","value":30,"clue":"This connection hardware helps prevent line twist by allowing the attached line or lure to rotate.","answer":"What is a swivel?","alternatives":["Fishing swivel."],"note":""},{"category":"Terminal Tackle","value":40,"clue":"This piece of line connects the main fishing line to the terminal tackle. It can be useful when a different line type or strength is needed near the hook or lure.","answer":"What is a leader?","alternatives":["Leader line."],"note":""},{"category":"Terminal Tackle","value":50,"clue":"In this rig, the weight is positioned above a hook and bait or lure, allowing the presentation to be fished at a controlled depth above the bottom.","answer":"What is a Drop Shot Rig?","alternatives":["Drop-shot."],"note":""},{"category":"Baits & Lures","value":10,"clue":"This artificial lure family includes examples such as spinners, jigs, and spoons, which are covered in the trout portion of the course.","answer":"What are artificial lures?","alternatives":["Fishing lures."],"note":""},{"category":"Baits & Lures","value":20,"clue":"This natural bait is included in the beginner trout tackle box and is often stored in a jar or container.","answer":"What is PowerBait?","alternatives":["Power Bait."],"note":""},{"category":"Baits & Lures","value":30,"clue":"This artificial bass lure is made of soft plastic and is included in the beginner bass tackle box.","answer":"What is a plastic worm?","alternatives":["Soft plastic worm."],"note":""},{"category":"Baits & Lures","value":40,"clue":"This natural bait is specifically listed among the common striped-bass baits and is used in an anchovy rig.","answer":"What is an anchovy?","alternatives":["Anchovies."],"note":""},{"category":"Baits & Lures","value":50,"clue":"You have selected a lure, but the fish aren't responding. The course teaches that you can change how quickly or slowly you work the lure without changing the lure itself. What are you changing?","answer":"What is the retrieve speed?","alternatives":["Retrieve","presentation speed."],"note":""},{"category":"Water Safety","value":10,"clue":"Before casting, students should be aware of this area behind them so they do not strike another person with a hook or lure.","answer":"What is the backcast area?","alternatives":["Casting safety area","safety perimeter."],"note":""},{"category":"Water Safety","value":20,"clue":"Hooks should be kept in this condition whenever fishing rods and equipment are being carried or moved.","answer":"What is secured?","alternatives":["Hooks secured","hooks covered or restrained."],"note":""},{"category":"Water Safety","value":30,"clue":"Before a fishing trip, you leave information with someone about where you are going and how long you expect to be there. What is this an important part of?","answer":"What is a fishing plan?","alternatives":["Trip plan","letting someone know your plans."],"note":""},{"category":"Water Safety","value":40,"clue":"This protective coating on a fish can be damaged by unnecessary handling. The course emphasizes using wet hands when handling fish.","answer":"What is the fish's slime coating?","alternatives":["Protective slime layer","mucus coating."],"note":""},{"category":"Water Safety","value":50,"clue":"You have hooked a fish and are preparing to land it. The course teaches that you should have your landing area and tools ready before the fish arrives. Why?","answer":"What is to make the landing and handling process safe and controlled?","alternatives":["To be prepared to land the fish safely","to minimize unnecessary handling and time out of water."],"note":""}];
@@ -86,45 +86,75 @@ function draw(){
 }
 let attempts=0, lastScoringTeam=0;
 function openClue(q){
- if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='host';
+ if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
+ pendingDecision=null;pendingTranscript='';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
  $('answer').classList.add('hidden');$('note').classList.add('hidden');
  $('answer').textContent='Correct response: '+q.answer+((q.alternatives||[]).length?' (also accepted: '+q.alternatives.join(', ')+')':'');
  $('note').textContent=q.note||'';$('panel').classList.remove('hidden');
- $('backupControls').classList.remove('hidden');$('reveal').classList.add('hidden');$('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');
+ $('backupControls').classList.remove('hidden');
+ $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');
+ $('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
  $('turnStatus').textContent=teams[active]+' is answering.';
- $('responseText').textContent='Host: listen to the response, then say “Correct” or “Incorrect.”';
- mic(false,'Listening for host ruling');if(voiceOn)startListening();
+ $('responseText').textContent='The game is listening to '+teams[active]+'\'s answer. Host may override the decision if needed.';
+ mic(false,'Listening for team answer');if(voiceOn)startListening();
+}
+let pendingDecision=null,pendingTranscript='';
+function normalizeAnswer(value){
+ return String(value||'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9 ]/g,' ').replace(/\\s+/g,' ').trim()
+  .replace(/^(what is|what are|who is|the answer is|i think it is|i think its) /,'')
+  .replace(/^(a|an|the) /,'').trim();
+}
+function evaluateAnswer(transcript){
+ const heard=normalizeAnswer(transcript),padded=' '+heard+' ';
+ const accepted=[current.answer,...(current.alternatives||[])].map(normalizeAnswer).filter(Boolean);
+ return accepted.some(a=>heard===a||padded.includes(' '+a+' '));
+}
+function announceDecision(ok,transcript){
+ if(!current||!['student_answer','decision'].includes(phase))return;
+ stopListening();pendingDecision=!!ok;pendingTranscript=transcript||'';phase='decision';
+ $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — '+(pendingDecision?'CORRECT':'INCORRECT')+'. Host: tap OK to accept, or override below.';
+ $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.remove('hidden');
+ say(pendingDecision?'Correct!':'Incorrect!');
 }
 function reveal(){
  if(!current)return;
  $('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);
- phase='await_turn';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('reveal').classList.add('hidden');
- $('reveal').textContent='YOUR TURN';$('reveal').classList.remove('hidden');
- $('responseText').textContent='Answer revealed. Host: say “Your turn” to return to the board.';
+ phase='await_turn';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.remove('hidden');
+ $('reveal').textContent='YOUR TURN';
+ $('responseText').textContent='Answer revealed. Host: say “Your turn” when ready.';
  say('The correct response is '+current.answer+'. Host, say your turn when ready.');
  if(voiceOn)startListening();
 }
-function judge(ok){
- if(!current||phase!=='host')return;
+function overrideDecision(ok){
+ if(!current||phase!=='decision')return;
+ pendingDecision=!!ok;
+ $('responseText').textContent='Host override: '+(pendingDecision?'CORRECT':'INCORRECT')+'. Tap OK to continue.';
+ say(pendingDecision?'Marked correct.':'Marked incorrect.');
+}
+function confirmDecision(){
+ if(!current||phase!=='decision'||pendingDecision===null)return;
  stopListening();
- if(ok){
+ if(pendingDecision){
   scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal();
  }else if(attempts===0){
-  attempts=1;active=1-active;updateScores();
+  attempts=1;active=1-active;updateScores();phase='student_answer';
+  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.add('hidden');
   $('turnStatus').textContent=teams[active]+' gets the chance to answer.';
-  $('responseText').textContent='Incorrect. '+teams[active]+' gets a chance. Host: say “Correct” or “Incorrect” after their response.';
-  say('Incorrect. The other team gets a chance.');
+  $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Listening for their answer.';
+  pendingDecision=null;pendingTranscript='';
+  say('Incorrect. '+teams[active]+', you have a chance to answer.');
   if(voiceOn)startListening();
  }else{
-  reveal();
+  active=1-active;updateScores();reveal();
  }
 }
 function finishClue(){
  if(!current||phase!=='await_turn')return;
  stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
- $('reveal').textContent='ANSWER';current=null;phase='board';
+ $('reveal').textContent='REVEAL ANSWER';current=null;phase='board';
  $('turnStatus').textContent=teams[active]+' selects next. Say “We’ll take, category, for, value.”';
+ say(teams[active]+', choose another clue.');
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
 function coinCall(v){called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;say(v+'. Say flip it when ready.');}
@@ -209,12 +239,12 @@ function chooseVoice(transcript){
   }else if(transcript.trim()){
    $('globalStatus').textContent='Heard: '+transcript+' — say a category and a value (for example, Knot Tying for ten).';
   }
- }else if(phase==='host'){
-  // Be forgiving about natural host phrasing, but avoid ambiguous standalone "yes".
-  const negative=/\bincorrect\b|\bwrong answer\b|\bthat's wrong\b|\bthat is wrong\b|\bnot correct\b|\bnot right\b|\bnope\b|\bno good\b|\btry again\b/.test(s);
-  const positive=/\bcorrect\b|\bthat's right\b|\bthat is right\b|\bright answer\b|\byou got it\b|\bthat's it\b|\bwell done\b|\baccepted\b/.test(s);
-  if(negative)judge(false);
-  else if(positive)judge(true);
+ }else if(phase==='student_answer'){
+  if(transcript.trim()){
+   const ok=evaluateAnswer(transcript);
+   $('globalStatus').textContent='Answer heard: '+transcript+' — '+(ok?'Correct':'Incorrect');
+   announceDecision(ok,transcript);
+  }
  }else if(phase==='await_turn'){
   if(/\byour turn\b|\bback to the board\b|\breturn to the board\b|\bnext question\b|\bchoose again\b|\bselect the next clue\b|\bboard please\b|\bback to play\b/.test(s))finishClue();
  }
@@ -222,7 +252,7 @@ function chooseVoice(transcript){
 function initVoice(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){const v=$('voiceToggle');if(v)v.disabled=true;mic(false,'Chrome speech recognition unavailable — update Chrome or use manual controls');return;}
- rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;
+ rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;rec.maxAlternatives=1;
  let restartTimer=null,lastRecognitionError='';
  rec.onstart=()=>{listening=true;recognitionBlocked=false;mic(true,'Listening — '+phase);};
  rec.onend=()=>{
@@ -230,7 +260,7 @@ function initVoice(){
   if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
   if(voiceOn&&!recognitionBlocked&&phase!=='none'){
    mic(false,lastRecognitionError ? 'Speech stopped: '+lastRecognitionError : 'Ready — waiting for your next command');
-   if(!lastRecognitionError)restartTimer=setTimeout(()=>{restartTimer=null;startListening();},500);
+   if(!lastRecognitionError)restartTimer=setTimeout(()=>{restartTimer=null;startListening();},250);
   }else if(!voiceOn)mic(false,'Voice off');
   else if(phase==='clue')mic(false,'Mic paused while clue is read');
  };
@@ -310,7 +340,7 @@ $('goBoard').onclick=()=>{
  $('turnStatus').textContent=teams[active]+' selects first. Say “We’ll take, category, for, value.”';
  if(voiceOn)startListening();
 };
-$('reveal').onclick=finishClue;$('correct').onclick=()=>judge(true);$('incorrect').onclick=()=>judge(false);
+$('reveal').onclick=finishClue;$('correct').onclick=()=>overrideDecision(true);$('incorrect').onclick=()=>overrideDecision(false);$('confirmDecision').onclick=confirmDecision;
 $('back').onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
 $('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').textContent='VOICE ON';mic(false,'Voice paused');};
 $('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();updateScores();if(voiceOn)startListening();};

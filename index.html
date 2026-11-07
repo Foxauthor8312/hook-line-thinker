@@ -411,7 +411,7 @@ function azurePhraseHints(){
  [...terms].slice(0,500).forEach(term=>grammar.addPhrase(term));
  }catch(error){console.warn('Azure phrase hints unavailable:',error);}}
 async function startListening(){
- if(!voiceOn||listening||recognitionBlocked||azureStarting||phase==='none')return;
+ if(!voiceOn||listening||recognitionBlocked||azureStarting)return;
  if(!window.SpeechSDK){initVoice();return;}azureStarting=true;
  try{
   const auth=await remoteRequest('/speech-token');

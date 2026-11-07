@@ -401,6 +401,49 @@ $('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').text
 $('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();updateScores();if(voiceOn)startListening();};
 $('teamName0').onchange=e=>{teams[0]=e.target.value||'Team 1';updateScores();};
 $('teamName1').onchange=e=>{teams[1]=e.target.value||'Team 2';updateScores();};
+
 draw();initVoice();
+
+// Laptop-side session activation. A short-lived code arrives from the NDOW portal;
+// no NDOW JWT is ever placed in the game URL.
+const GAME_SESSION_API='https://ndow-calendar-server.onrender.com/api/game-sessions';
+let remoteSession=null,remoteDeviceToken='',remoteLastEvent=0,remotePollTimer=null;
+function showRemoteNotice(title,body){
+ let box=document.getElementById('remoteSessionNotice');
+ if(!box){box=document.createElement('div');box.id='remoteSessionNotice';box.style.cssText='position:fixed;right:16px;top:16px;z-index:10000;width:min(340px,calc(100vw - 32px));padding:16px;background:#f8fafc;color:#19304B;border:2px solid #589FD6;border-radius:12px;box-shadow:0 8px 30px #0008;font:14px Arial,sans-serif';document.body.appendChild(box);}
+ box.innerHTML='<div style="font-weight:800;font-size:16px;margin-bottom:7px">'+title+'</div><div>'+body+'</div>';
+}
+async function remoteRequest(path,options={}){
+ const response=await fetch(GAME_SESSION_API+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),...(remoteDeviceToken?{Authorization:'Bearer '+remoteDeviceToken}:{})}});
+ const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Remote connection failed.');return data;
+}
+async function pollRemoteEvents(){
+ if(!remoteSession||!remoteDeviceToken)return;
+ try{
+  const data=await remoteRequest('/'+remoteSession.id+'/events?after='+remoteLastEvent,{headers:{}});
+  for(const event of data.events||[]){
+   remoteLastEvent=Math.max(remoteLastEvent,Number(event.id)||0);
+   if(event.event_type==='tablet_connected')showRemoteNotice('TABLET CONNECTED','Your host tablet is paired. The remote test button is ready.');
+   if(event.event_type==='test_ping')showRemoteNotice('CONNECTION TEST RECEIVED','Success! The tablet sent a command and the classroom display received it.');
+  }
+ }catch(error){showRemoteNotice('CONNECTION INTERRUPTED',error.message);}
+}
+async function activateLaptopSession(){
+ const params=new URLSearchParams(location.search);
+ const launchCode=params.get('launch');
+ if(!launchCode)return;
+ showRemoteNotice('CONNECTING GAME SESSION','Activating secure laptop connection…');
+ try{
+  const data=await remoteRequest('/redeem',{method:'POST',body:JSON.stringify({code:launchCode})});
+  remoteSession=data.session;remoteDeviceToken=data.device_token;
+  sessionStorage.setItem('hlt_remote_session',JSON.stringify({session:remoteSession,token:remoteDeviceToken}));
+  history.replaceState({},document.title,location.pathname);
+  showRemoteNotice('PAIR YOUR HOST TABLET','Instructor: <b>'+remoteSession.instructor_name+'</b><br><br>On the tablet open <b>remote.html</b> and enter this code:<div style="font-size:34px;letter-spacing:7px;font-weight:900;text-align:center;padding:12px;color:#19304B">'+data.pairing_code+'</div><small>Code expires in 24 hours and can only be used once.</small>');
+  remotePollTimer=setInterval(pollRemoteEvents,1600);
+ }catch(error){showRemoteNotice('SESSION NOT STARTED',error.message);}
+}
+activateLaptopSession();
+window.addEventListener('pagehide',()=>{if(remotePollTimer)clearInterval(remotePollTimer);});
 window.addEventListener('pagehide',stopGameMicMeter);
+
 </script></body></html>

@@ -158,10 +158,10 @@ function startResponseTimer(){
   if(attempts===0){
    attempts=1;active=1-active;updateScores();
    $('teamResponse'+active).textContent=teams[active]+': —';
-   $('turnStatus').textContent=teams[active]+' gets 5 seconds to answer.';
+   $('turnStatus').textContent=teams[active]+' gets 30 seconds to answer.';
    $('responseText').textContent='Time expired. '+teams[active]+' gets one chance to answer.';
-   if($('globalStatus'))$('globalStatus').textContent='Time expired — '+teams[active]+' has 5 seconds.';
-   say('Time is up. '+teams[active]+', you have five seconds to answer.',()=>{
+   if($('globalStatus'))$('globalStatus').textContent='Time expired — '+teams[active]+' has 30 seconds.';
+   say('Time is up. '+teams[active]+', you have thirty seconds to answer.',()=>{
     if(voiceOn&&phase==='student_answer'&&current){startListening();startResponseTimer();}
    });
   }else{
@@ -170,7 +170,7 @@ function startResponseTimer(){
    if($('globalStatus'))$('globalStatus').textContent='Time expired — revealing the answer.';
    reveal(false);
   }
- },5000);
+ },30000);
 }
 
 const thinkBonusBank={
@@ -358,7 +358,7 @@ function confirmDecision(){
   pendingDecision=null;pendingTranscript='';
   $('teamResponse'+active).textContent=teams[active]+': —';
   $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.add('hidden');
-  $('turnStatus').textContent=teams[active]+' gets the chance to answer.';
+  $('turnStatus').textContent=teams[active]+' gets 30 seconds to answer.';
   $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Waiting for a fresh response.';
   if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — listening will restart now.';
   say('Incorrect. '+teams[active]+', you have a chance to answer.',()=>{

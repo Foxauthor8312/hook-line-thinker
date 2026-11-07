@@ -643,7 +643,13 @@ async function startListening(){
   rec.recognizing=(sender,event)=>{const heard=(event.result&&event.result.text||'').trim();if(!heard)return;mic(true,'Hearing: '+heard);if(phase==='student_answer'&&current){$('teamResponse'+active).textContent=teams[active]+': '+heard;if($('globalStatus'))$('globalStatus').textContent=teams[active]+' speaking: '+heard;}else if($('globalStatus'))$('globalStatus').textContent='Hearing you: '+heard;};
   rec.recognized=(sender,event)=>{if(event.result&&event.result.reason===window.SpeechSDK.ResultReason.RecognizedSpeech){const heard=(event.result.text||'').trim();if(!heard)return;mic(true,'Recognized: '+heard);if($('globalStatus'))$('globalStatus').textContent='Voice recognized: '+heard;if(phase==='student_answer'&&current)$('teamResponse'+active).textContent=teams[active]+': '+heard;chooseVoice(heard);}};
   rec.canceled=(sender,event)=>{const reason=event.errorDetails||event.reason||'Recognition stopped';console.warn('Azure Speech canceled:',reason);if(voiceOn)mic(false,'Azure Speech: '+String(reason).slice(0,140));};
-  rec.sessionStopped=()=>{listening=false;if(voiceOn&&!recognitionBlocked&&phase!=='none'&&phase!=='clue')setTimeout(()=>{if(voiceOn&&!listening)startListening();},350);};
+  rec.sessionStopped=()=>{
+   listening=false;
+   const listenPhases=['coin','board','student_answer','await_turn','think_answer','think_wager_amount'];
+   if(voiceOn&&!recognitionBlocked&&listenPhases.includes(phase))setTimeout(()=>{
+    if(voiceOn&&!listening&&listenPhases.includes(phase))startListening();
+   },350);
+  };
   await new Promise((resolve,reject)=>rec.startContinuousRecognitionAsync(resolve,reject));
   listening=true;recognitionBlocked=false;azureStarting=false;mic(true,'Azure Speech listening — '+phase);
   if($('voiceCheckMark')){$('voiceCheckMark').textContent='✓';$('voiceCheckMark').style.background='#42664b';}

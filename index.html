@@ -204,13 +204,17 @@ function announceDecision(match,transcript){
  stopListening();pendingTranscript=transcript||'';
  phase='decision';
  pendingDecision=!!(match&&match.matched);
-  $('responseText').textContent=match&&match.matched
-  ?'MATCH FOUND — '+match.source+': “'+match.matchedText+'”. Heard: “'+(pendingTranscript||'')+'”. Host: confirm or override on the tablet.'
-  :'NO ANSWER-BANK MATCH. Heard: “'+(pendingTranscript||'No clear transcript')+'”. Check the answer key and judge on the tablet.';
- say(match&&match.matched?'Answer-bank match found: '+match.matchedText+'. Host, please confirm.':'No answer-bank match found. Host, please judge the answer.');
- // Never award points or pass the clue automatically based only on speech
- // recognition. The instructor makes the final call for both matched and
- // unmatched transcripts.
+ if(match&&match.matched){
+  // A recognized response that matches an active official or acceptable
+  // answer-bank entry is accepted automatically. Unmatched responses remain
+  // under instructor control below.
+  scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();
+  $('responseText').textContent='ACCEPTED — '+match.source+': “'+match.matchedText+'”. Heard: “'+pendingTranscript+'”. '+teams[active]+' earns '+current.value+' points.';
+  reveal(true);
+  return;
+ }
+ $('responseText').textContent='NO ANSWER-BANK MATCH. Heard: “'+(pendingTranscript||'No clear transcript')+'”. Host: judge this response on the tablet.';
+ say('No answer-bank match found. Host, please judge the answer.');
  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.remove('hidden');
 }
 function reveal(wasCorrect){

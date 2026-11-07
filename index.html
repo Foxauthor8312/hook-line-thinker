@@ -208,20 +208,11 @@ function reveal(wasCorrect){
  if(!current)return;
  stopListening();
  $('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);
- phase='auto_close';$('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
- $('responseText').textContent='Answer displayed. The clue will close automatically in 5 seconds.';
+ current.wasCorrect=!!wasCorrect;
+ phase='answer_revealed';
+ $('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
+ $('responseText').textContent='Answer displayed. Host may explain or take questions. Use the tablet to continue when ready.';
  say('The correct response is '+current.answer+'.');
- const revealedClue=current;
- setTimeout(()=>{
-  if(current!==revealedClue||phase!=='auto_close')return;
-  $('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
-  current=null;phase='board';
-  const nextPrompt=wasCorrect?teams[active]+', select another clue.':'Game goes to '+teams[active]+'. Choose a clue.';
-  $('turnStatus').textContent=nextPrompt;
-  $('responseText').textContent=nextPrompt;
-  say(nextPrompt);
-  if(voiceOn){mic(false,'Ready for board selection');startListening();}
- },5000);
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;
@@ -247,11 +238,13 @@ function confirmDecision(){
  }
 }
 function finishClue(){
- if(!current||phase!=='await_turn')return;
+ if(!current||!['await_turn','answer_revealed'].includes(phase))return;
+ const wasCorrect=current.wasCorrect!==false;
  stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
  $('reveal').textContent='REVEAL ANSWER';current=null;phase='board';
- $('turnStatus').textContent=teams[active]+' selects next. Say “We’ll take, category, for, value.”';
- say(teams[active]+', choose another clue.');
+ const nextPrompt=wasCorrect?teams[active]+' selects next. Say “We’ll take, category, for, value.”':'Game goes to '+teams[active]+'. Choose a clue.';
+ $('turnStatus').textContent=nextPrompt;$('responseText').textContent=nextPrompt;
+ say(wasCorrect?teams[active]+', choose another clue.':'Game goes to '+teams[active]+'. Choose a clue.');
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
 function coinCall(v){called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;speakThenListen(v+'. Say flip it when ready.');}

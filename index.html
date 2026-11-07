@@ -125,6 +125,53 @@ function draw(){
  }
 }
 let attempts=0, lastScoringTeam=0;
+let responseTimer=null;
+function clearResponseTimer(){
+ if(responseTimer){clearTimeout(responseTimer);responseTimer=null;}
+}
+function playBuzzer(){
+ const C=window.AudioContext||window.webkitAudioContext;
+ if(!C)return;
+ try{
+  const ctx=new C(),now=ctx.currentTime;
+  [0,0.22].forEach((offset)=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sawtooth';osc.frequency.setValueAtTime(190,now+offset);
+   osc.frequency.linearRampToValueAtTime(115,now+offset+.28);
+   gain.gain.setValueAtTime(.0001,now+offset);
+   gain.gain.linearRampToValueAtTime(.22,now+offset+.025);
+   gain.gain.setValueAtTime(.22,now+offset+.20);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+offset+.34);
+   osc.connect(gain);gain.connect(ctx.destination);
+   osc.start(now+offset);osc.stop(now+offset+.36);
+  });
+  setTimeout(()=>ctx.close(),900);
+ }catch(error){console.warn('Buzzer audio unavailable:',error);}
+}
+function startResponseTimer(){
+ clearResponseTimer();
+ if(phase!=='student_answer'||!current)return;
+ responseTimer=setTimeout(()=>{
+  responseTimer=null;
+  if(phase!=='student_answer'||!current)return;
+  stopListening();playBuzzer();
+  if(attempts===0){
+   attempts=1;active=1-active;updateScores();
+   $('teamResponse'+active).textContent=teams[active]+': —';
+   $('turnStatus').textContent=teams[active]+' gets 5 seconds to answer.';
+   $('responseText').textContent='Time expired. '+teams[active]+' gets one chance to answer.';
+   if($('globalStatus'))$('globalStatus').textContent='Time expired — '+teams[active]+' has 5 seconds.';
+   say('Time is up. '+teams[active]+', you have five seconds to answer.',()=>{
+    if(voiceOn&&phase==='student_answer'&&current){startListening();startResponseTimer();}
+   });
+  }else{
+   active=1-active;updateScores();
+   $('responseText').textContent='Time is up. Neither team answered. The correct answer will be revealed.';
+   if($('globalStatus'))$('globalStatus').textContent='Time expired — revealing the answer.';
+   reveal(false);
+  }
+ },5000);
+}
 function openClue(q){
  if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
  pendingDecision=null;pendingTranscript='';
@@ -141,6 +188,7 @@ function openClue(q){
  if($('globalStatus'))$('globalStatus').textContent='Listening for '+teams[active]+' — speak your answer.';
  publishHostAnswer(q);
  mic(false,'Listening for '+teams[active]+' answer');if(voiceOn)startListening();
+ startResponseTimer();
 }
 let pendingDecision=null,pendingTranscript='';
 function normalizeAnswer(value){
@@ -201,7 +249,7 @@ function evaluateAnswer(transcript){
 }
 function announceDecision(match,transcript){
  if(!current||!['student_answer','decision'].includes(phase))return;
- stopListening();pendingTranscript=transcript||'';
+ clearResponseTimer();stopListening();pendingTranscript=transcript||'';
  phase='decision';
  pendingDecision=!!(match&&match.matched);
  if(match&&match.matched){
@@ -219,7 +267,7 @@ function announceDecision(match,transcript){
 }
 function reveal(wasCorrect){
  if(!current)return;
- stopListening();
+ clearResponseTimer();stopListening();
  $('answer').classList.remove('hidden');$('note').classList.toggle('hidden',!current.note);
  current.wasCorrect=!!wasCorrect;
  phase='answer_revealed';
@@ -242,7 +290,7 @@ function overrideDecision(ok){
 }
 function confirmDecision(){
  if(!current||phase!=='decision'||pendingDecision===null)return;
- stopListening();
+ clearResponseTimer();stopListening();
  if(pendingDecision){
   scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal(true);
  }else if(attempts===0){
@@ -256,7 +304,7 @@ function confirmDecision(){
   say('Incorrect. '+teams[active]+', you have a chance to answer.',()=>{
    // Give the receiving team a clean response window only after the handoff
    // announcement has finished; never evaluate the previous team's transcript.
-   setTimeout(()=>{if(voiceOn&&phase==='student_answer'&&current)startListening();},350);
+   setTimeout(()=>{if(voiceOn&&phase==='student_answer'&&current)startListening();startResponseTimer();},350);
   });
  }else{
   active=1-active;updateScores();reveal(false);

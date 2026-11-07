@@ -417,11 +417,11 @@ function beginFinalDiscussion(){
 function beginFinalAnswers(){
  if(phase!=='think_discussion')return;
  stopThinkHarderMusic(2800);
- clearInterval(finalRoundTimer);finalRoundTimer=null;phase='think_answer';finalStage='answer';finalActiveTeam=0;
+ clearInterval(finalRoundTimer);finalRoundTimer=null;phase='think_answer_prompt';finalStage='answer';finalActiveTeam=0;
  $('finalCountdown').textContent='00:00';$('finalInstruction').textContent='The discussion time is over. '+teams[0]+', give your answer.';
- $('finalStatus').textContent='Listening for '+teams[0]+'.';
+ $('finalStatus').textContent='Waiting for '+teams[0]+' to hear the question.';
  say('Time is up. The final clue again. '+finalQuestion.clue+' '+teams[0]+', what is your answer?',()=>{
-  if(phase==='think_answer'&&voiceOn)startListening();
+  if(phase==='think_answer_prompt'){phase='think_answer';if(voiceOn)startListening();}
  });
 }
 function finalAnswerMatches(text){
@@ -435,12 +435,12 @@ function finalAnswerMatches(text){
 }
 function receiveFinalAnswer(transcript){
  if(phase!=='think_answer'||!transcript.trim())return;
- stopListening();
+ phase='think_wager_prompt';finalStage='wager_prompt';stopListening();
  const ok=finalAnswerMatches(transcript);finalAnswers[finalActiveTeam]=ok;
  $('finalStatus').textContent=teams[finalActiveTeam]+' answered: '+transcript+' — '+(ok?'correct':'incorrect')+'.';
  $('finalInstruction').textContent=ok?'That’s correct! How much did you wager?':teams[finalActiveTeam]+' — incorrect. How much did you wager?';
  say((ok?'That’s correct! ':'That is not correct. ')+teams[finalActiveTeam]+', how much did you wager?',()=>{
-  phase='think_wager_amount';finalStage='wager_amount';if(voiceOn)startListening();
+  if(phase==='think_wager_prompt'){phase='think_wager_amount';finalStage='wager_amount';if(voiceOn)startListening();}
  });
 }
 function receiveFinalWager(transcript){
@@ -450,13 +450,18 @@ function receiveFinalWager(transcript){
  let amountMatch=spoken.match(/\b\d+\b/),amount=amountMatch?Number(amountMatch[0]):null;
  if(amount===null){const found=Object.entries(words).find(([w])=>new RegExp('\\b'+w+'\\b').test(spoken));if(found)amount=found[1];}
  const team=finalActiveTeam,max=Math.max(0,Number(scores[team])||0);
- if(amount===null||amount<0||amount>max){$('finalStatus').textContent='Please state a wager from zero up to '+max+' points.';say('Please state a wager from zero up to '+max+' points.',()=>{if(voiceOn)startListening();});return;}
+ if(amount===null||amount<0||amount>max){phase='think_wager_prompt';$('finalStatus').textContent='Please state a wager from zero up to '+max+' points.';say('Please state a wager from zero up to '+max+' points.',()=>{if(phase==='think_wager_prompt'){phase='think_wager_amount';if(voiceOn)startListening();}});return;}
  finalWagers[team]=amount;
  scores[team]+=finalAnswers[team]?amount:-amount;updateScores();
  $('finalStatus').textContent=teams[team]+' wagered '+amount+' points. '+(finalAnswers[team]?'Added ':'Subtracted ')+amount+'.';
  stopListening();
- if(team===0){finalActiveTeam=1;phase='think_answer';finalStage='answer';$('finalInstruction').textContent=teams[1]+', give your answer.';say(teams[1]+', here is the final clue again. '+finalQuestion.clue+' What is your answer?',()=>{if(voiceOn)startListening();});}
- else finishThinkHarder();
+ if(team===0){
+  finalActiveTeam=1;phase='think_answer_prompt';finalStage='answer';$('finalInstruction').textContent=teams[1]+', give your answer.';
+  $('finalStatus').textContent='Waiting for '+teams[1]+' to hear the question.';
+  say(teams[1]+', here is the final clue again. '+finalQuestion.clue+' What is your answer?',()=>{
+   if(phase==='think_answer_prompt'){phase='think_answer';if(voiceOn)startListening();}
+  });
+ }else finishThinkHarder();
 }
 function finishThinkHarder(){
  stopThinkHarderMusic(1200);

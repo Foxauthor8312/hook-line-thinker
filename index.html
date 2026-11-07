@@ -507,10 +507,24 @@ $('letsPlayBtn').onclick=()=>{
 };
 $('heads').onclick=()=>coinCall('Heads');$('tails').onclick=()=>coinCall('Tails');$('flip').onclick=flipCoin;
 $('goBoard').onclick=()=>{
+ // Enter the board only after the toss announcement has finished. Starting
+ // recognition during the host's speech causes the microphone to transcribe
+ // the team name and overwrite the voice/status display.
+ stopListening();
  screen('game');phase='board';draw();updateScores();
  $('turnStatus').textContent=teams[active]+' goes first. Make a selection.';
-  say(teams[active]+' goes first. Make a selection.');
- if(voiceOn)startListening();
+ if(!voiceOn){
+  voiceOn=true;
+  $('voiceToggle').textContent='VOICE OFF';
+  startGameMicMeter();
+  recognitionBlocked=false;
+ }
+ say(teams[active]+' goes first. Make a selection.',()=>{
+  if(voiceOn&&phase==='board'){
+   if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — say a category and point value.';
+   startListening();
+  }
+ });
 };
 $('reveal').onclick=finishClue;$('correct').onclick=()=>overrideDecision(true);$('incorrect').onclick=()=>overrideDecision(false);$('confirmDecision').onclick=confirmDecision;
 const backButton=$('back');if(backButton)backButton.onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};

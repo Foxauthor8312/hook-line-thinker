@@ -72,6 +72,7 @@
 <div class="scores"><div class="team" id="teamBox0"><input id="teamName0" value="Team 1"><div class="score" id="score0">0</div></div><div class="reel">🎣</div><div class="team" id="teamBox1"><input id="teamName1" value="Team 2"><div class="score" id="score1">0</div></div></div>
 <div id="backupControls" class="compact-controls hidden"><button id="correct" class="good hidden">OVERRIDE: CORRECT</button><button id="incorrect" class="bad hidden">OVERRIDE: INCORRECT</button><button id="confirmDecision" class="primary hidden">OK — CONTINUE</button><button id="reveal" class="primary hidden">REVEAL ANSWER</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
 <div class="actions"><button id="pauseVoice">PAUSE VOICE</button><button id="reset">RESET GAME</button></div></section></main>
+<script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
 <script>
 let questions=[]
 const $=id=>document.getElementById(id);
@@ -400,63 +401,35 @@ function chooseVoice(transcript){
   if(/\byour turn\b|\bback to the board\b|\breturn to the board\b|\bnext question\b|\bchoose again\b|\bselect the next clue\b|\bboard please\b|\bback to play\b/.test(s))finishClue();
  }
 }
-function initVoice(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){const v=$('voiceToggle');if(v)v.disabled=true;mic(false,'Chrome speech recognition unavailable — update Chrome or use manual controls');return;}
- rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
- let restartTimer=null,lastRecognitionError='';
- rec.onstart=()=>{listening=true;recognitionBlocked=false;mic(true,'Listening — '+phase);if($('voiceCheckMark')){$('voiceCheckMark').textContent='✓';$('voiceCheckMark').style.background='#42664b';}if($('voiceCheckText'))$('voiceCheckText').textContent='Speech recognition is listening for voice commands.';};
- rec.onend=()=>{
-  listening=false;
-  if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
-  if(voiceOn&&!recognitionBlocked&&phase!=='none'){
-   mic(false,lastRecognitionError ? 'Speech stopped: '+lastRecognitionError : 'Ready — waiting for your next command');
-   if(!lastRecognitionError)restartTimer=setTimeout(()=>{restartTimer=null;startListening();},250);
-  }else if(!voiceOn)mic(false,'Voice off');
-  else if(phase==='clue')mic(false,'Mic paused while clue is read');
- };
- rec.onerror=e=>{
-  listening=false;
-  lastRecognitionError=e.error||'unknown error';
-  if(e.error==='not-allowed'||e.error==='service-not-allowed'){
-   recognitionBlocked=true;voiceOn=false;$('voiceToggle').textContent='VOICE ON';mic(false,'Chrome denied speech recognition permission');
-  }else if(e.error==='audio-capture'){
-   recognitionBlocked=true;mic(false,'Speech recognition cannot access the microphone');
-  }else if(e.error==='network'){
-   recognitionBlocked=true;mic(false,'Speech service network error — Chrome could not return recognized words');if($('globalStatus'))$('globalStatus').textContent='Speech recognition service error: network';
-  }else if(e.error==='no-speech'){
-   lastRecognitionError='';mic(false,'Listening, but no words were recognized');
-  }else if(e.error==='aborted'){
-   lastRecognitionError='';mic(false,'Speech recognition paused');
-  }else{
-   recognitionBlocked=true;mic(false,'Speech recognition error: '+lastRecognitionError);
-  }
- };
- rec.onresult=e=>{
-  let interim='';
-  for(let i=e.resultIndex;i<e.results.length;i++){
-   const heard=(e.results[i][0].transcript||'').trim();
-   if(e.results[i].isFinal&&heard){
-    lastRecognitionError='';
-    mic(true,'Recognized: '+heard);
-    if($('globalStatus'))$('globalStatus').textContent='Voice recognized: '+heard;
-    chooseVoice(heard);
-   }else if(heard){
-    interim+=heard+' ';
-    // Show live student speech immediately; Chrome may delay its final result
-    // until the speaker pauses, which previously left the team line blank.
-    if(phase==='student_answer'&&current){
-     $('teamResponse'+active).textContent=teams[active]+': '+heard;
-     if($('globalStatus'))$('globalStatus').textContent=teams[active]+' speaking: '+heard;
-    }
-   }
-  }
-  if(interim.trim()){
-   mic(true,'Hearing: '+interim.trim());
-   if(phase!=='student_answer'&&$('globalStatus'))$('globalStatus').textContent='Hearing you: '+interim.trim();
-  }
- };
-}
+function initVoice(){if(!window.SpeechSDK){recognitionBlocked=true;mic(false,'Azure Speech SDK did not load. Refresh the classroom display.');}}
+let azureSpeechConfig=null,azureTokenTimer=null,azureStarting=false;
+function azurePhraseHints(){
+ if(!window.SpeechSDK||!rec)return;
+ try{const grammar=window.SpeechSDK.PhraseListGrammar.fromRecognizer(rec);
+ const terms=new Set(['Hook Line and Thinker','NDOW','Nevada','fishing','spincasting','clinch knot','Palomar knot','non slip loop knot','monofilament','fluorocarbon','bobber','sinker','swivel','jig','spinner','spoon','crankbait','treble hook','life jacket','personal flotation device','PFD','waders','trout','bass','catfish','bluegill','crappie','kokanee','largemouth','smallmouth']);
+ questions.forEach(q=>[q.category,q.answer,...(q.alternatives||[]),...(q.clue||'').split(/[^a-zA-Z'-]+/)].forEach(v=>{const phrase=String(v||'').trim();if(phrase.length>2&&phrase.length<90)terms.add(phrase);}));
+ [...terms].slice(0,500).forEach(term=>grammar.addPhrase(term));
+ }catch(error){console.warn('Azure phrase hints unavailable:',error);}}
+async function startListening(){
+ if(!voiceOn||listening||recognitionBlocked||azureStarting||phase==='none')return;
+ if(!window.SpeechSDK){initVoice();return;}azureStarting=true;
+ try{
+  const auth=await remoteRequest('/speech-token');
+  const config=window.SpeechSDK.SpeechConfig.fromAuthorizationToken(auth.token,auth.region);config.speechRecognitionLanguage='en-US';
+  const audio=window.SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+  rec=new window.SpeechSDK.SpeechRecognizer(config,audio);azureSpeechConfig=config;azurePhraseHints();
+  rec.recognizing=(sender,event)=>{const heard=(event.result&&event.result.text||'').trim();if(!heard)return;mic(true,'Hearing: '+heard);if(phase==='student_answer'&&current){$('teamResponse'+active).textContent=teams[active]+': '+heard;if($('globalStatus'))$('globalStatus').textContent=teams[active]+' speaking: '+heard;}else if($('globalStatus'))$('globalStatus').textContent='Hearing you: '+heard;};
+  rec.recognized=(sender,event)=>{if(event.result&&event.result.reason===window.SpeechSDK.ResultReason.RecognizedSpeech){const heard=(event.result.text||'').trim();if(!heard)return;mic(true,'Recognized: '+heard);if($('globalStatus'))$('globalStatus').textContent='Voice recognized: '+heard;if(phase==='student_answer'&&current)$('teamResponse'+active).textContent=teams[active]+': '+heard;chooseVoice(heard);}};
+  rec.canceled=(sender,event)=>{const reason=event.errorDetails||event.reason||'Recognition stopped';console.warn('Azure Speech canceled:',reason);if(voiceOn)mic(false,'Azure Speech: '+String(reason).slice(0,140));};
+  rec.sessionStopped=()=>{listening=false;if(voiceOn&&!recognitionBlocked&&phase!=='none'&&phase!=='clue')setTimeout(()=>{if(voiceOn&&!listening)startListening();},350);};
+  await new Promise((resolve,reject)=>rec.startContinuousRecognitionAsync(resolve,reject));
+  listening=true;recognitionBlocked=false;azureStarting=false;mic(true,'Azure Speech listening — '+phase);
+  if($('voiceCheckMark')){$('voiceCheckMark').textContent='✓';$('voiceCheckMark').style.background='#42664b';}
+  if($('voiceCheckText'))$('voiceCheckText').textContent='Azure Speech is listening. Fishing vocabulary hints are active.';
+  if(azureTokenTimer)clearInterval(azureTokenTimer);
+  azureTokenTimer=setInterval(async()=>{if(!rec||!voiceOn)return;try{const fresh=await remoteRequest('/speech-token');azureSpeechConfig.authorizationToken=fresh.token;}catch(error){console.warn('Azure Speech token refresh failed:',error.message);}},8*60*1000);
+ }catch(error){azureStarting=false;listening=false;recognitionBlocked=true;mic(false,'Azure Speech could not start: '+(error.message||'Check microphone permission'));if($('globalStatus'))$('globalStatus').textContent='Azure Speech error: '+(error.message||'Unknown error');}}
+function stopListening(){if(azureTokenTimer){clearInterval(azureTokenTimer);azureTokenTimer=null;}const active=rec;rec=null;listening=false;azureStarting=false;if(active){try{active.stopContinuousRecognitionAsync(()=>active.close(),()=>active.close());}catch(error){try{active.close();}catch(e){}}}}
 // Independent microphone level meter: confirms audio capture without relying on speech recognition.
 let levelStream=null,levelContext=null,levelAnalyser=null,levelFrame=0;
 async function startGameMicMeter(){

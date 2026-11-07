@@ -250,6 +250,47 @@ function finishClue(){
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
 function coinCall(v){if(busyFlip||!$('goBoard').classList.contains('hidden'))return;called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;speakThenListen(v+'. Say flip it when ready.');}
+let coinAudio=null;
+function audioEngine(){
+ const C=window.AudioContext||window.webkitAudioContext;
+ if(!C)return null;
+ if(!coinAudio)coinAudio=new C();
+ if(coinAudio.state==='suspended')coinAudio.resume();
+ return coinAudio;
+}
+function coinPing(at,frequency=1250,volume=.16,decay=.22){
+ const c=audioEngine();if(!c)return;
+ const t=at??c.currentTime;
+ [1,2.76,5.4].forEach((ratio,i)=>{
+  const o=c.createOscillator(),g=c.createGain();
+  o.type='sine';o.frequency.setValueAtTime(frequency*ratio,t);
+  g.gain.setValueAtTime(volume/(i*1.8+1),t);
+  g.gain.exponentialRampToValueAtTime(.001,t+decay);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+decay+.02);
+ });
+}
+function coinSpinSound(){
+ const c=audioEngine();if(!c)return;
+ const start=c.currentTime;
+ // Bright, accelerating metallic ticks create the sound of a coin spinning on a table.
+ for(let i=0;i<22;i++){
+  const p=i/21,when=start+.08+i*(.105-.075*p);
+  coinPing(when,1550+Math.sin(i*1.7)*220,.075,.11);
+ }
+ // Soft airy sweep underneath the spinning coin.
+ const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+ o.type='triangle';o.frequency.setValueAtTime(420,start);
+ o.frequency.exponentialRampToValueAtTime(115,start+4.6);
+ f.type='lowpass';f.frequency.setValueAtTime(900,start);f.frequency.exponentialRampToValueAtTime(260,start+4.6);
+ g.gain.setValueAtTime(.001,start);g.gain.linearRampToValueAtTime(.055,start+.18);g.gain.exponentialRampToValueAtTime(.001,start+4.6);
+ o.connect(f);f.connect(g);g.connect(c.destination);o.start(start);o.stop(start+4.65);
+}
+function quarterDropSound(){
+ const c=audioEngine();if(!c)return;
+ const t=c.currentTime;
+ coinPing(t,980,.28,.42);
+ coinPing(t+.035,1480,.13,.3);
+}
 function flipCoin(){
  if(!called||busyFlip)return;busyFlip=true;stopListening();
  const outcome=Math.random()<.5?'heads':'tails';
@@ -260,6 +301,7 @@ function flipCoin(){
  const landingAngle=outcome==='heads'?90:270;
  const revealAngle=outcome==='heads'?0:180;
  const flightDuration=4800,t0=performance.now();
+ coinSpinSound();
  const rotations=7*360+((landingAngle-startAngle+360)%360);
  function flight(now){
   const t=Math.min((now-t0)/flightDuration,1),angle=startAngle+rotations*t;
@@ -270,6 +312,7 @@ function flipCoin(){
   coin.style.transform=`translateY(0) rotateX(${landingAngle}deg) rotateZ(0deg)`;
   shadow.style.transform='scaleX(1)';shadow.style.opacity='.85';
   const bounceStart=performance.now(),bounceDuration=1550;
+  quarterDropSound();
   function bounce(now){
    const p=Math.min((now-bounceStart)/bounceDuration,1);let hop=0;
    if(p<.52){const q=p/.52;hop=42*Math.sin(Math.PI*q);}
@@ -277,6 +320,7 @@ function flipCoin(){
    const rock=(1-p)*9*Math.sin(p*Math.PI*4.8);
    coin.style.transform=`translateY(${-hop}px) rotateX(${landingAngle+rock}deg)`;
    shadow.style.transform=`scaleX(${1+hop/85})`;shadow.style.opacity=String(.85-hop/100);
+   if(p>=.52&&!bounce.secondClink){bounce.secondClink=true;quarterDropSound();}
    if(p<1){requestAnimationFrame(bounce);return;}
    coin.style.transform=`translateY(0) rotateX(${landingAngle}deg)`;
    shadow.style.transform='scaleX(1)';shadow.style.opacity='.85';

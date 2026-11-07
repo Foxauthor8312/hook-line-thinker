@@ -211,8 +211,12 @@ function reveal(wasCorrect){
  current.wasCorrect=!!wasCorrect;
  phase='answer_revealed';
  $('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
- $('responseText').textContent='Answer displayed. Host may explain or take questions. Use the tablet to continue when ready.';
- say('The correct response is '+current.answer+'.');
+ $('responseText').textContent=wasCorrect
+  ?'CORRECT! The answer is '+current.answer+'. '+teams[active]+' earned the points and will select the next clue when the host returns to the board.'
+  :'The answer is '+current.answer+'. Host may explain or take questions. Use the tablet to continue when ready.';
+ say(wasCorrect
+  ?'Correct! The answer is '+current.answer+'. '+teams[active]+', you select the next clue.'
+  :'The correct response is '+current.answer+'.');
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;

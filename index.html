@@ -503,6 +503,11 @@ function handleTabletGameAction(p){
     const q=questions.find(x=>x.category===p.category&&x.value===Number(p.value)&&!x.used&&x.clue&&x.answer);
     if(q)openClue(q);else showRemoteNotice('TABLET CONTROL','That clue is unavailable or has already been used.');
    }
+  }else if(action==='acceptable'){
+   if(phase==='decision'){
+    $('correct').click();
+    $('confirmDecision').click();
+   }else showRemoteNotice('ANSWER NOT READY','Wait until a team has responded before accepting.');
   }else if(action==='correct')$('correct').click();
   else if(action==='incorrect')$('incorrect').click();
   else if(action==='confirm')$('confirmDecision').click();

@@ -491,13 +491,19 @@ $('preflightContinue').onclick=()=>screen('setup');
 if('speechSynthesis'in window){populateSpeechVoices();speechSynthesis.onvoiceschanged=populateSpeechVoices;}
 $('startBtn').onclick=()=>{$('rulesPanel').classList.remove('hidden');$('startBtn').classList.add('hidden');};
 $('letsPlayBtn').onclick=()=>{
+ // Stop recognition before the host speaks. Otherwise the microphone can
+ // hear the host's own words and trigger coinCall()/overlapping prompts.
+ stopListening();
+ if('speechSynthesis'in window)speechSynthesis.cancel();
  teams=[$('team1Input').value.trim()||'Team 1',$('team2Input').value.trim()||'Team 2'];
  $('teamName0').value=teams[0];$('teamName1').value=teams[1];
  screen('coin');phase='coin';called='Heads';
  $('heads').disabled=true;$('tails').disabled=true;$('flip').disabled=true;
  if($('globalStatus'))$('globalStatus').textContent='Coin toss: '+teams[0]+' is Heads; '+teams[1]+' is Tails.';
  $('coinPrompt').textContent=teams[0]+' is Heads. '+teams[1]+' is Tails.';
- say('A coin toss will determine who starts the game. '+teams[0]+' is heads, and '+teams[1]+' is tails. I will flip the coin, and then we will start the game.',()=>setTimeout(()=>{if(phase==='coin'&&!busyFlip)flipCoin();},500));
+ say('A coin toss will determine who starts the game. '+teams[0]+' are heads, and '+teams[1]+' are tails. I will flip the coin, and then we will start the game.',()=>{
+  setTimeout(()=>{if(phase==='coin'&&!busyFlip)flipCoin();},500);
+ });
 };
 $('heads').onclick=()=>coinCall('Heads');$('tails').onclick=()=>coinCall('Tails');$('flip').onclick=flipCoin;
 $('goBoard').onclick=()=>{

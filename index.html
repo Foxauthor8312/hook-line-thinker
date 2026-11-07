@@ -135,7 +135,14 @@ function normalizeAnswer(value){
 function evaluateAnswer(transcript){
  const heard=normalizeAnswer(transcript),padded=' '+heard+' ';
  const accepted=[current.answer,...(current.alternatives||[])].map(normalizeAnswer).filter(Boolean);
- return accepted.some(a=>heard===a||padded.includes(' '+a+' '));
+ // Accept the full answer, a listed alternative, or a distinctive keyword
+ // from one of those answers. Ignore generic subject words such as "knot".
+ const generic=new Set(['the','and','for','with','from','into','type','kind','knot','fish','fishing','bait','lure','lures','tackle','equipment','terminal','water','safety','species']);
+ return accepted.some(answer=>{
+  if(heard===answer||padded.includes(' '+answer+' '))return true;
+  const keywords=answer.split(' ').filter(word=>word.length>=3&&!generic.has(word));
+  return keywords.some(word=>padded.includes(' '+word+' '));
+ });
 }
 function announceDecision(ok,transcript){
  if(!current||!['student_answer','decision'].includes(phase))return;

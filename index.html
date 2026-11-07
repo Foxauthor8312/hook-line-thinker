@@ -227,10 +227,12 @@ function reveal(wasCorrect){
  $('responseText').textContent=wasCorrect
   ?'CORRECT! The answer is '+current.answer+'. '+teams[active]+' earned the points and will select the next clue when the host returns to the board.'
   :'The answer is '+current.answer+'. Host may explain or take questions. Use the tablet to continue when ready.';
+ // Announce the result first. Once the announcement finishes, close the
+ // answer panel and let finishClue() make the single next-turn announcement.
  say(wasCorrect
-  ?'Correct! The answer is '+current.answer+'. '+teams[active]+', you select the next clue.'
+  ?'Correct! The answer is '+current.answer+'.'
   :'The correct response is '+current.answer+'.',
-  wasCorrect?()=>setTimeout(()=>{if(current&&phase==='answer_revealed')finishClue();},900):null);
+  ()=>setTimeout(()=>{if(current&&phase==='answer_revealed')finishClue();},350));
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;

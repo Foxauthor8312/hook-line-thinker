@@ -365,17 +365,46 @@ function beginThinkHarder(){
   finalTimer(15,beginFinalDiscussion);
  });
 }
+let thinkHarderAudio=null,thinkHarderFadeTimer=null;
+function stopThinkHarderMusic(fadeMs=2500){
+ if(thinkHarderFadeTimer){clearInterval(thinkHarderFadeTimer);thinkHarderFadeTimer=null;}
+ if(!thinkHarderAudio)return;
+ const audio=thinkHarderAudio,start=Number(audio.volume)||0,started=Date.now();
+ thinkHarderFadeTimer=setInterval(()=>{
+  const progress=Math.min(1,(Date.now()-started)/fadeMs);
+  audio.volume=Math.max(0,start*(1-progress));
+  if(progress>=1){clearInterval(thinkHarderFadeTimer);thinkHarderFadeTimer=null;audio.pause();audio.currentTime=0;}
+ },50);
+}
+function startThinkHarderMusic(){
+ stopThinkHarderMusic(0);
+ if(!thinkHarderAudio){thinkHarderAudio=new Audio('assets/think-harder.mp3');thinkHarderAudio.loop=true;thinkHarderAudio.preload='auto';}
+ const audio=thinkHarderAudio;audio.pause();audio.currentTime=0;audio.volume=0;
+ audio.play().then(()=>{
+  const started=Date.now(),fadeMs=2200;
+  if(thinkHarderFadeTimer)clearInterval(thinkHarderFadeTimer);
+  thinkHarderFadeTimer=setInterval(()=>{
+   const progress=Math.min(1,(Date.now()-started)/fadeMs);
+   audio.volume=Math.min(1,progress*.72);
+   if(progress>=1){clearInterval(thinkHarderFadeTimer);thinkHarderFadeTimer=null;}
+  },50);
+ }).catch(error=>console.warn('Think Harder music could not start:',error));
+}
 function beginFinalDiscussion(){
  if(phase!=='think_wager')return;
  phase='think_discussion';finalStage='discussion';
  $('finalInstruction').textContent="Please put your pencils down. You'll have one minute to discuss a response with your team. Countdown begins: now!";
  $('finalStatus').textContent='Team discussion in progress.';
  say("Please put your pencils down. We'll start Think Harder. You'll have one minute to discuss a response with your team. Countdown begins: now!",()=>{
-  if(phase==='think_discussion')finalTimer(60,beginFinalAnswers);
+  if(phase==='think_discussion'){
+   startThinkHarderMusic();
+   finalTimer(60,beginFinalAnswers);
+  }
  });
 }
 function beginFinalAnswers(){
  if(phase!=='think_discussion')return;
+ stopThinkHarderMusic(2800);
  clearInterval(finalRoundTimer);finalRoundTimer=null;phase='think_answer';finalStage='answer';finalActiveTeam=0;
  $('finalCountdown').textContent='00:00';$('finalInstruction').textContent='The discussion time is over. '+teams[0]+', give your answer.';
  $('finalStatus').textContent='Listening for '+teams[0]+'.';
@@ -418,6 +447,7 @@ function receiveFinalWager(transcript){
  else finishThinkHarder();
 }
 function finishThinkHarder(){
+ stopThinkHarderMusic(1200);
  phase='game_over';finalStage='complete';stopListening();clearInterval(finalRoundTimer);finalRoundTimer=null;
  const winner=scores[0]===scores[1]?'It is a tie!':teams[scores[0]>scores[1]?0:1]+' wins!';
  $('finalInstruction').textContent='FINAL SCORES';$('finalCountdown').textContent='—';

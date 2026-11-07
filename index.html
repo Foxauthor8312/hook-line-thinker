@@ -13,14 +13,19 @@
 .coin-result{font-size:28px;font-weight:800;letter-spacing:2px;color:#ffd27c;min-height:34px}
 .coin-wrap.reveal{width:330px;height:330px;transition:width .7s,height .7s}
 @media(max-width:600px){.coin-stage{height:300px}.coin-wrap{width:190px;height:190px}.coin-wrap.reveal{width:270px;height:270px}}
-#globalVoiceBar{display:flex!important;visibility:visible!important;opacity:1!important;position:relative;z-index:20;margin:8px auto 16px;max-width:1400px}
-#globalVoiceBar .mic{display:flex;align-items:center;gap:8px}
-#gameMicMeter{display:flex;align-items:center;gap:7px;margin-left:auto;padding:5px 9px;border:1px solid #dbe3ec;border-radius:8px;background:#fff;min-width:150px}
-#gameMicMeter .meter-label{font-size:10px;font-weight:700;letter-spacing:.04em;color:#526579;white-space:nowrap}
-#gameMicBars{display:grid;grid-template-columns:repeat(12,4px);gap:2px;height:15px;align-items:end}
+#globalVoiceBar{display:flex!important;visibility:visible!important;opacity:1!important;position:absolute;z-index:20;top:8px;right:max(18px,calc((100vw - 1400px)/2 + 18px));margin:0;max-width:none;justify-content:flex-end;pointer-events:none}
+#globalVoiceBar #globalStatus{display:none}
+#classroomStatusStack{display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:auto}
+#tabletConnectionNote{display:none;font-size:11px;color:#c4d5e0;letter-spacing:.2px;padding:1px 3px}
+#tabletConnectionNote.connected{display:block}
+#globalVoiceBar .mic{display:flex;align-items:center;gap:7px;padding:4px 7px;border:0;border-radius:7px;background:#0d2235;font-size:11px}
+#globalVoiceBar .mic button{padding:5px 8px;font-size:10px;border-radius:6px}
+#gameMicMeter{display:flex;align-items:center;gap:6px;margin:0;padding:3px 7px;border:1px solid #dbe3ec;border-radius:6px;background:#fff;min-width:130px}
+#gameMicMeter .meter-label{font-size:9px;font-weight:700;letter-spacing:.04em;color:#526579;white-space:nowrap}
+#gameMicBars{display:grid;grid-template-columns:repeat(12,4px);gap:2px;height:13px;align-items:end}
 #gameMicBars i{display:block;height:5px;border-radius:2px;background:#dbe3ec}
-#gameMicState{font-size:10px;font-weight:700;color:#64748b;white-space:nowrap}
-@media(max-width:650px){#globalVoiceBar{flex-wrap:wrap}#gameMicMeter{margin-left:0}}
+#gameMicState{font-size:9px;font-weight:700;color:#64748b;white-space:nowrap}
+@media(max-width:650px){#globalVoiceBar{top:6px;right:8px}#classroomStatusStack{gap:4px}}
 
 /* Compact classroom controls and board-overlay clue panel */
 #game{position:relative}
@@ -40,7 +45,7 @@
 #backupControls button{padding:4px 10px;font-size:11px;min-height:25px}
 #game .scores{margin-top:8px}
 </style></head><body><header><h1>HOOK, LINE &amp; THINKER</h1><div class="sub">THE FISHING KNOWLEDGE CHALLENGE</div></header><main>
-<div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div class="mic" id="mic"><span class="mic-symbol" aria-label="Microphone"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg></span><span class="dot"></span><span id="micLabel">Voice off</span><button id="voiceToggle">VOICE ON</button></div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div></div>
+<div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div id="classroomStatusStack"><div id="tabletConnectionNote" aria-live="polite">Tablet Connected</div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div><div class="mic" id="mic"><span class="mic-symbol" aria-label="Microphone"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg></span><span class="dot"></span><span id="micLabel">Voice off</span><button id="voiceToggle">VOICE ON</button></div></div></div>
 
 <section id="preflight" class="screen"><h2>PRE-FLIGHT CHECKLIST</h2><p>Make sure everything is ready before bringing the teams in.</p><div class="voice-picker"><label for="speechVoiceSelect">HOST ANNOUNCEMENT VOICE</label><select id="speechVoiceSelect"><option value="">System default</option></select><button type="button" id="testSpeechVoice">PLAY VOICE SAMPLE</button><p class="small">Choose the voice the class will hear during game announcements.</p></div><div class="preflight-list"><div class="preflight-item"><span class="preflight-mark" id="audioCheckMark">1</span><div><b>Host announcements</b><p id="audioCheckText">Select a voice and play the sample to confirm classroom audio.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="micCheckMark">2</span><div><b>Microphone input</b><p id="micCheckText">Turn on voice controls above and speak. The MIC indicator should respond to your voice.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="voiceCheckMark">3</span><div><b>Voice commands</b><p id="voiceCheckText">Turn Voice ON above and confirm the listening indicator appears.</p></div></div><div class="preflight-item"><span class="preflight-mark">4</span><div><b>Display and controls</b><p>Confirm the game is displayed on the classroom screen and mouse controls are available.</p></div></div></div><p class="small">Laptop/tablet remote pairing will be added to this checklist when that feature is implemented.</p><div class="actions"><button class="primary" id="preflightContinue">CONTINUE TO TEAM SETUP</button></div></section>
 <section id="setup" class="screen hidden"><h2>Welcome, teams!</h2><p>Enter your team names to get started.</p><input id="team1Input" value="Team 1"><input id="team2Input" value="Team 2"><div class="actions"><button class="primary" id="startBtn">REVIEW THE RULES</button></div><div id="rulesPanel" class="panel hidden" style="position:static;transform:none;margin:18px auto 0;max-height:none"><h2>HOW TO PLAY</h2><p><b>1. PICK A CLUE</b><br>Teams take turns selecting a category and point value. A coin toss determines who starts.</p><p><b>2. THINK IT THROUGH</b><br>Listen to the clue. Teams may discuss before the team leader responds.</p><p><b>3. ANSWER IN THE FORM OF A QUESTION</b><br>The host decides whether the answer is correct.</p><p><b>4. SCORING</b><br>Correct answers earn the displayed points. Incorrect answers give the other team a chance.</p><p><b>5. KEEP THE GAME MOVING</b><br>The team that answers correctly selects next. If neither team is correct, play passes to the opposing team.</p><p><b>6. SPECIAL CHALLENGES</b><br><b>THINKS MORE:</b> A surprise wager clue. Correct adds the wager; incorrect deducts it. No steal opportunity.<br><b>THINKS HARDER:</b> After the board is cleared, both teams secretly wager points and answer the same final question independently. Correct answers add the wager; incorrect answers subtract it.</p><p class="small">The team leader gives the official answer. Wagers cannot exceed the team's current score. The host's ruling is final.</p><h2 style="color:#19304B">THINK IT THROUGH. WORK TOGETHER. REEL IN THE WIN!</h2><div class="actions"><button class="primary" id="letsPlayBtn">LET'S PLAY!</button></div></div><p class="small">Chrome desktop is recommended for voice commands. Mouse controls are always available.</p></section>
@@ -576,7 +581,7 @@ async function pollRemoteEvents(){
   const data=await remoteRequest('/'+remoteSession.id+'/events?after='+remoteLastEvent,{headers:{}});
   for(const event of data.events||[]){
    remoteLastEvent=Math.max(remoteLastEvent,Number(event.id)||0);
-   if(event.event_type==='tablet_connected')showRemoteNotice('TABLET CONNECTED','Your host tablet is paired. Tablet game controls are ready.');
+   if(event.event_type==='tablet_connected'){$('tabletConnectionNote')?.classList.add('connected');$('tabletConnectionNote').textContent='Tablet Connected';}
    if(event.event_type==='test_ping')showRemoteNotice('CONNECTION TEST RECEIVED','Success! The tablet sent a command and the classroom display received it.');
    if(event.event_type==='remote_action')handleTabletGameAction(event.payload||{});
   }

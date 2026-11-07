@@ -377,7 +377,7 @@ function stopThinkHarderMusic(fadeMs=2500){
  },50);
 }
 function startThinkHarderMusic(){
- stopThinkHarderMusic(0);
+ if(thinkHarderFadeTimer){clearInterval(thinkHarderFadeTimer);thinkHarderFadeTimer=null;}
  if(!thinkHarderAudio){thinkHarderAudio=new Audio('assets/think-harder.mp3');thinkHarderAudio.loop=true;thinkHarderAudio.preload='auto';}
  const audio=thinkHarderAudio;audio.pause();audio.currentTime=0;audio.volume=0;
  audio.play().then(()=>{

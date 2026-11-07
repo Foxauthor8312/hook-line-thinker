@@ -105,7 +105,7 @@ async function poll(){if(!session)return;try{const d=await request('/'+session.i
  if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){}
 }}catch(e){status(e.message);}}
 $('closeHostAnswer').onclick=()=> $('answerOverlay').classList.remove('show');
-$('saveQuestion').onclick=saveQuestion;$('openQuestionEditor').onclick=()=>{$('questionEditor').classList.add('show');loadManagedQuestions();};$('closeQuestionEditor').onclick=()=>{$('questionEditor').classList.remove('show');};$('cancelQuestion').onclick=()=>{$('questionEditor').classList.remove('show');};$('editCategory').onchange=loadSelectedQuestion;$('editValue').onchange=loadSelectedQuestion;
+$('saveQuestion').onclick=saveQuestion;$('openQuestionEditor').onclick=()=>{$('questionEditor').classList.add('show');loadManagedQuestions();};$('closeQuestionEditor').onclick=()=>{$('questionEditor').classList.remove('show');};$('editCategory').onchange=loadSelectedQuestion;$('editValue').onchange=loadSelectedQuestion;
 $('connect').onclick=connect;$('pairCode').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
 $('heads').onclick=()=>send('heads');$('tails').onclick=()=>send('tails');$('flip').onclick=()=>send('flip_coin');$('goBoard').onclick=()=>send('go_board');
 $('acceptable').onclick=()=>send('acceptable');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('next').onclick=()=>send('next_clue');$('pause').onclick=()=>send('pause_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};

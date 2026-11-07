@@ -133,6 +133,7 @@ function openClue(q){
  $('turnStatus').textContent=teams[active]+' is answering.';
  $('responseText').textContent='The game is listening to '+teams[active]+'\'s answer. Host may override the decision if needed.';
  if($('globalStatus'))$('globalStatus').textContent='Listening for '+teams[active]+' — speak your answer.';
+ publishHostAnswer(q);
  mic(false,'Listening for '+teams[active]+' answer');if(voiceOn)startListening();
 }
 let pendingDecision=null,pendingTranscript='';
@@ -477,6 +478,15 @@ function showRemoteNotice(title,body){
  let box=document.getElementById('remoteSessionNotice');
  if(!box){box=document.createElement('div');box.id='remoteSessionNotice';box.style.cssText='position:fixed;right:16px;top:16px;z-index:10000;width:min(340px,calc(100vw - 32px));padding:16px;background:#f8fafc;color:#19304B;border:2px solid #589FD6;border-radius:12px;box-shadow:0 8px 30px #0008;font:14px Arial,sans-serif';document.body.appendChild(box);}
  box.innerHTML='<div style="font-weight:800;font-size:16px;margin-bottom:7px">'+title+'</div><div>'+body+'</div>';
+}
+async function publishHostAnswer(q){
+ if(!remoteSession||!remoteDeviceToken||!q)return;
+ try{
+  await remoteRequest('/'+remoteSession.id+'/commands',{method:'POST',body:JSON.stringify({
+   event_type:'clue_opened',
+   payload:{category:q.category,value:q.value,answer:q.answer,alternatives:q.alternatives||[]}
+  })});
+ }catch(error){showRemoteNotice('HOST TABLET UPDATE FAILED',error.message||'Could not send the answer reference.');}
 }
 async function remoteRequest(path,options={}){
  const response=await fetch(GAME_SESSION_API+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),...(remoteDeviceToken?{Authorization:'Bearer '+remoteDeviceToken}:{})}});

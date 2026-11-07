@@ -253,9 +253,11 @@ function confirmDecision(){
   $('turnStatus').textContent=teams[active]+' gets the chance to answer.';
   $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Waiting for a fresh response.';
   if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — listening will restart now.';
-  say('Incorrect. '+teams[active]+', you have a chance to answer.');
-  // stopListening() above lets the browser finish its current recognition cycle.
-  // onend restarts the recognizer; do not call start() while it is still stopping.
+  say('Incorrect. '+teams[active]+', you have a chance to answer.',()=>{
+   // Give the receiving team a clean response window only after the handoff
+   // announcement has finished; never evaluate the previous team's transcript.
+   setTimeout(()=>{if(voiceOn&&phase==='student_answer'&&current)startListening();},350);
+  });
  }else{
   active=1-active;updateScores();reveal(false);
  }

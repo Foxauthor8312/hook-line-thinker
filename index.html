@@ -190,16 +190,19 @@ function evaluateAnswer(transcript){
 function announceDecision(ok,transcript){
  if(!current||!['student_answer','decision'].includes(phase))return;
  stopListening();pendingTranscript=transcript||'';
- if(!ok){
-  pendingDecision=false;phase='decision';
-  $('responseText').textContent='Incorrect. '+(attempts===0?teams[1-active]+' gets the same clue.':'Both teams have had a chance. Revealing the correct answer.');
-  $('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');
-  confirmDecision();return;
+ phase='decision';
+ pendingDecision=!!ok;
+ if(ok){
+  $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — POSSIBLY CORRECT. Host: compare with the answer on your tablet, then accept or override.';
+  say('I heard a possible correct answer. Host, please confirm.');
+ }else{
+  $('responseText').textContent='Heard: “'+(pendingTranscript||'No clear transcript')+'” — NOT MATCHED. This may be a recognition error. Host: compare with the answer on your tablet and decide.';
+  say('I could not confidently match that response. Host, please decide.');
  }
- pendingDecision=true;phase='decision';
- $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — CORRECT. Host: tap OK to accept, or override below.';
+ // Never award points or pass the clue automatically based only on speech
+ // recognition. The instructor makes the final call for both matched and
+ // unmatched transcripts.
  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.remove('hidden');
- say('Correct!');
 }
 function reveal(wasCorrect){
  if(!current)return;

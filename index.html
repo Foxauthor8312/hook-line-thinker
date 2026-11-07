@@ -396,7 +396,7 @@ $('goBoard').onclick=()=>{
  if(voiceOn)startListening();
 };
 $('reveal').onclick=finishClue;$('correct').onclick=()=>overrideDecision(true);$('incorrect').onclick=()=>overrideDecision(false);$('confirmDecision').onclick=confirmDecision;
-$('back').onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
+const backButton=$('back');if(backButton)backButton.onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
 $('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').textContent='VOICE ON';mic(false,'Voice paused');};
 $('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();updateScores();if(voiceOn)startListening();};
 $('teamName0').onchange=e=>{teams[0]=e.target.value||'Team 1';updateScores();};

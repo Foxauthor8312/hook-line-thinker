@@ -139,10 +139,17 @@ function evaluateAnswer(transcript){
 }
 function announceDecision(ok,transcript){
  if(!current||!['student_answer','decision'].includes(phase))return;
- stopListening();pendingDecision=!!ok;pendingTranscript=transcript||'';phase='decision';
- $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — '+(pendingDecision?'CORRECT':'INCORRECT')+'. Host: tap OK to accept, or override below.';
+ stopListening();pendingTranscript=transcript||'';
+ if(!ok){
+  pendingDecision=false;phase='decision';
+  $('responseText').textContent='Incorrect. '+(attempts===0?teams[1-active]+' gets the same clue.':'Both teams have had a chance. Revealing the correct answer.');
+  $('correct').classList.add('hidden');$('incorrect').classList.add('hidden');$('confirmDecision').classList.add('hidden');
+  confirmDecision();return;
+ }
+ pendingDecision=true;phase='decision';
+ $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — CORRECT. Host: tap OK to accept, or override below.';
  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.remove('hidden');
- say(pendingDecision?'Correct!':'Incorrect!');
+ say('Correct!');
 }
 function reveal(wasCorrect){
  if(!current)return;

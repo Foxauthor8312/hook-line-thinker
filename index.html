@@ -192,13 +192,8 @@ function announceDecision(ok,transcript){
  stopListening();pendingTranscript=transcript||'';
  phase='decision';
  pendingDecision=!!ok;
- if(ok){
-  $('responseText').textContent='Heard: “'+(pendingTranscript||'Host override')+'” — POSSIBLY CORRECT. Host: compare with the answer on your tablet, then accept or override.';
-  say('I heard a possible correct answer. Host, please confirm.');
- }else{
-  $('responseText').textContent='Heard: “'+(pendingTranscript||'No clear transcript')+'” — NOT MATCHED. This may be a recognition error. Host: compare with the answer on your tablet and decide.';
-  say('I could not confidently match that response. Host, please decide.');
- }
+  $('responseText').textContent='Heard: “'+(pendingTranscript||'No clear transcript')+'”. Instructor: judge the spoken answer using the answer key on your tablet. Speech recognition is only a transcript, not a correctness decision.';
+ say('Response recorded. Instructor, please judge the answer.');
  // Never award points or pass the clue automatically based only on speech
  // recognition. The instructor makes the final call for both matched and
  // unmatched transcripts.
@@ -231,12 +226,15 @@ function confirmDecision(){
   scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal(true);
  }else if(attempts===0){
   attempts=1;active=1-active;updateScores();phase='student_answer';
+  pendingDecision=null;pendingTranscript='';
+  $('teamResponse'+active).textContent=teams[active]+': —';
   $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.add('hidden');
   $('turnStatus').textContent=teams[active]+' gets the chance to answer.';
-  $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Listening for their answer.';
-  pendingDecision=null;pendingTranscript='';
+  $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Waiting for a fresh response.';
+  if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — listening will restart now.';
   say('Incorrect. '+teams[active]+', you have a chance to answer.');
-  if(voiceOn)startListening();
+  // stopListening() above lets the browser finish its current recognition cycle.
+  // onend restarts the recognizer; do not call start() while it is still stopping.
  }else{
   active=1-active;updateScores();reveal(false);
  }
@@ -343,7 +341,7 @@ function chooseVoice(transcript){
   if(transcript.trim()){
    $('teamResponse'+active).textContent=teams[active]+': '+transcript;
    const ok=evaluateAnswer(transcript);
-   $('globalStatus').textContent='Answer heard: '+transcript+' — '+(ok?'Correct':'Incorrect');
+   $('globalStatus').textContent='Response heard: '+transcript+' — instructor review required';
    announceDecision(ok,transcript);
   }
  }else if(phase==='await_turn'){

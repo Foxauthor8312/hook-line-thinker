@@ -17,7 +17,7 @@ h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 
 .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scorebox{background:#f1f5f8;border-radius:9px;padding:10px;text-align:center}.scorebox strong{display:block;font-size:24px;margin:5px}
 .smallbtn{font-size:12px;padding:9px 5px;min-height:38px}
-.answer-overlay{display:none;position:fixed;inset:0;background:#102337cc;z-index:9999;align-items:center;justify-content:center;padding:18px}.answer-overlay.show{display:flex}.answer-popup{width:min(520px,100%);background:white;border:3px solid var(--blue);border-radius:16px;padding:22px;box-shadow:0 16px 50px #0006}.answer-popup .eyebrow{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#64748b}.answer-popup h2{font-size:20px;margin:8px 0 18px}.answer-popup .answer{font-size:27px;font-weight:900;line-height:1.25;margin:12px 0 18px}.answer-popup .alternatives{font-size:14px;color:#526477;line-height:1.5;margin-bottom:14px}.answer-popup button{width:100%}
+.editor input,.editor textarea,.editor select{width:100%;padding:10px;font-size:16px;letter-spacing:normal;text-align:left;border:1px solid #bac8d5;border-radius:8px;color:var(--navy);background:#fff;margin:0 0 10px}.editor textarea{min-height:72px;resize:vertical}.editor .fieldlabel{margin:8px 0 5px}.editor-list{display:grid;gap:8px;margin-top:12px}.editor-item{border:1px solid #dbe3ec;border-radius:9px;padding:10px;background:#f8fafc}.editor-item strong{display:block;margin-bottom:4px}.editor-item p{font-size:12px;color:#526477;margin:4px 0;line-height:1.4}.editor-actions{display:flex;gap:7px;margin-top:8px}.editor-actions button{flex:1}.editor .grid2{align-items:start}.editor-status{font-size:12px;color:#526477;margin-top:8px;line-height:1.4}.answer-overlay{display:none;position:fixed;inset:0;background:#102337cc;z-index:9999;align-items:center;justify-content:center;padding:18px}.answer-overlay.show{display:flex}.answer-popup{width:min(520px,100%);background:white;border:3px solid var(--blue);border-radius:16px;padding:22px;box-shadow:0 16px 50px #0006}.answer-popup .eyebrow{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#64748b}.answer-popup h2{font-size:20px;margin:8px 0 18px}.answer-popup .answer{font-size:27px;font-weight:900;line-height:1.25;margin:12px 0 18px}.answer-popup .alternatives{font-size:14px;color:#526477;line-height:1.5;margin-bottom:14px}.answer-popup button{width:100%}
 @media(max-width:390px){main{padding:9px}.card{padding:12px}.categories{grid-template-columns:1fr 1fr}.values{gap:4px}.values button{font-size:12px}}
 </style></head><body>
 <header><h1>HOOK, LINE & THINKER</h1><small>INSTRUCTOR TABLET REMOTE</small></header>
@@ -25,6 +25,19 @@ h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 
 <section id="join" class="card"><label for="pairCode">SIX-DIGIT LAPTOP PAIRING CODE</label><input id="pairCode" inputmode="numeric" maxlength="6" placeholder="••••••"><button class="full orange" id="connect">CONNECT TO GAME</button><div id="joinStatus" class="status">Enter the code displayed on the classroom laptop.</div></section>
 <div id="controls">
  <section class="card"><div class="top"><div class="teamline" id="connectedName">Connected</div><button class="light smallbtn" id="disconnect">DISCONNECT</button></div><div id="controlStatus" class="status good">Tablet connected. Controls are ready.</div></section>
+ <section class="card editor">
+  <div class="top"><h2>QUESTION & ANSWER BANK</h2><button class="light smallbtn" id="refreshQuestions">REFRESH</button></div>
+  <p class="hint">Changes are saved to Supabase and remain available after a restart.</p>
+  <div class="fieldlabel"><label for="editCategory">CATEGORY</label></div><input id="editCategory" placeholder="e.g. Knot Tying">
+  <div class="grid2"><div><label for="editValue">POINT VALUE</label><select id="editValue"><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option></select></div><div><label for="editActive">STATUS</label><select id="editActive"><option value="true">Active</option><option value="false">Inactive</option></select></div></div>
+  <label for="editClue">CLUE</label><textarea id="editClue" placeholder="Enter the question clue"></textarea>
+  <label for="editAnswer">OFFICIAL ANSWER</label><input id="editAnswer" placeholder="Enter the official correct answer">
+  <label for="editAlternatives">OTHER ACCEPTABLE ANSWERS</label><textarea id="editAlternatives" placeholder="One acceptable answer per line"></textarea>
+  <label for="editNote">INSTRUCTOR NOTES (OPTIONAL)</label><textarea id="editNote" placeholder="Notes for the instructor"></textarea>
+  <div class="grid2"><button id="saveQuestion" class="green">SAVE QUESTION</button><button id="clearQuestion" class="light">NEW / CLEAR</button></div>
+  <div id="editorStatus" class="editor-status">Connect the tablet to load the question bank.</div>
+  <div id="questionList" class="editor-list"></div>
+ </section>
  <section class="card"><h2>GAME NAVIGATION</h2><div class="grid3"><button id="heads" class="smallbtn">HEADS</button><button id="tails" class="smallbtn">TAILS</button><button id="flip" class="orange smallbtn">FLIP COIN</button></div><button id="goBoard" class="full">SHOW GAME BOARD</button></section>
  <section class="card"><h2>SELECT A CLUE</h2><p class="hint">Choose a category, then a point value.</p><div class="categories" id="categories"></div><div class="values" id="values"></div></section>
  <section class="card"><h2>CLUE / ANSWER CONTROLS</h2><div class="grid2"><button id="acceptable" class="green">ACCEPTABLE / CONTINUE</button><button id="incorrect" class="red">INCORRECT</button><button id="confirm" class="orange">OK / CONTINUE</button><button id="reveal" class="light">REVEAL ANSWER</button></div><button id="next" class="full light">BACK TO BOARD / NEXT TURN</button></section>
@@ -49,8 +62,57 @@ const $=id=>document.getElementById(id);
 async function request(path,options={}){const response=await fetch(API+path,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Request failed.');return data;}
 function status(message,good=false){$('controlStatus').textContent=message;$('controlStatus').className='status'+(good?' good':'');}
 async function send(action,extra={}){if(!session||busy)return;busy=true;try{await request('/'+session.id+'/commands',{method:'POST',body:JSON.stringify({event_type:'remote_action',payload:{action,...extra}})});status('Sent: '+action.replaceAll('_',' '),true);}catch(e){status(e.message);}finally{busy=false;}}
+let managedQuestions=[],editingQuestionId=null;
+function editorStatus(message){$('editorStatus').textContent=message;}
+function clearQuestionForm(){
+ editingQuestionId=null;
+ ['editCategory','editClue','editAnswer','editAlternatives','editNote'].forEach(id=>$(id).value='');
+ $('editValue').value='10';$('editActive').value='true';$('saveQuestion').textContent='SAVE QUESTION';
+}
+function editQuestion(q){
+ editingQuestionId=q.id;$('editCategory').value=q.category;$('editValue').value=String(q.point_value);
+ $('editActive').value=String(q.active!==false);$('editClue').value=q.clue;$('editAnswer').value=q.official_answer;
+ $('editNote').value=q.instructor_note||'';
+ $('editAlternatives').value=(q.game_accepted_answers||[]).filter(a=>a.active&&!a.is_primary).map(a=>a.answer_text).join('\n');
+ $('saveQuestion').textContent='UPDATE QUESTION';$('editCategory').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderQuestionList(){
+ const root=$('questionList');root.innerHTML='';
+ managedQuestions.forEach(q=>{
+  const item=document.createElement('div');item.className='editor-item';
+  const title=document.createElement('strong');title.textContent=q.category+' · '+q.point_value+' points'+(q.active?'':' · INACTIVE');
+  const clue=document.createElement('p');clue.textContent=q.clue;
+  const answer=document.createElement('p');answer.textContent='Answer: '+q.official_answer;
+  const actions=document.createElement('div');actions.className='editor-actions';
+  const edit=document.createElement('button');edit.className='smallbtn';edit.textContent='EDIT';edit.onclick=()=>editQuestion(q);
+  const remove=document.createElement('button');remove.className='smallbtn red';remove.textContent='DELETE';remove.onclick=()=>deleteQuestion(q);
+  actions.append(edit,remove);item.append(title,clue,answer,actions);root.append(item);
+ });
+}
+async function loadManagedQuestions(){
+ if(!session)return;
+ editorStatus('Loading saved questions…');
+ try{const d=await request('/manage/questions');managedQuestions=d.questions||[];renderQuestionList();editorStatus(managedQuestions.length+' questions loaded from Supabase.');}
+ catch(e){editorStatus(e.message);}
+}
+async function saveQuestion(){
+ const category=$('editCategory').value.trim(),clue=$('editClue').value.trim(),answer=$('editAnswer').value.trim();
+ if(!category||!clue||!answer){editorStatus('Category, clue, and official answer are required.');return;}
+ const accepted_answers=$('editAlternatives').value.split('\n').map(text=>text.trim()).filter(Boolean);
+ const payload={id:editingQuestionId||undefined,category,point_value:Number($('editValue').value),clue,official_answer:answer,
+  instructor_note:$('editNote').value.trim(),active:$('editActive').value==='true',accepted_answers};
+ $('saveQuestion').disabled=true;editorStatus('Saving to Supabase…');
+ try{await request('/manage/questions',{method:'POST',body:JSON.stringify(payload)});clearQuestionForm();await loadManagedQuestions();editorStatus('Saved. The laptop will use the updated question bank the next time it loads the game.');}
+ catch(e){editorStatus(e.message);}
+ finally{$('saveQuestion').disabled=false;}
+}
+async function deleteQuestion(q){
+ if(!confirm('Delete '+q.category+' for '+q.point_value+' points?'))return;
+ try{await request('/manage/questions/'+encodeURIComponent(q.id),{method:'DELETE'});await loadManagedQuestions();editorStatus('Question deleted.');}
+ catch(e){editorStatus(e.message);}
+}
 function drawCategories(){$('categories').innerHTML='';categories.forEach(name=>{const b=document.createElement('button');b.textContent=name;b.classList.toggle('selected',name===selectedCategory);b.onclick=()=>{selectedCategory=name;drawCategories();};$('categories').append(b);});$('values').innerHTML='';[10,20,30,40,50].forEach(value=>{const b=document.createElement('button');b.textContent=value;b.onclick=()=>send('select_clue',{category:selectedCategory,value});$('values').append(b);});}
-async function connect(){const code=$('pairCode').value.replace(/\D/g,'');if(code.length!==6){$('joinStatus').textContent='Enter all six digits.';return;} $('connect').disabled=true;$('joinStatus').textContent='Connecting…';try{const d=await request('/pair',{method:'POST',body:JSON.stringify({code})});session=d.session;token=d.device_token;$('join').style.display='none';$('controls').style.display='block';$('connectedName').textContent='Connected to '+session.instructor_name+'’s game';drawCategories();pollTimer=setInterval(poll,1800);}catch(e){$('joinStatus').textContent=e.message;}finally{$('connect').disabled=false;}}
+async function connect(){const code=$('pairCode').value.replace(/\D/g,'');if(code.length!==6){$('joinStatus').textContent='Enter all six digits.';return;} $('connect').disabled=true;$('joinStatus').textContent='Connecting…';try{const d=await request('/pair',{method:'POST',body:JSON.stringify({code})});session=d.session;token=d.device_token;$('join').style.display='none';$('controls').style.display='block';$('connectedName').textContent='Connected to '+session.instructor_name+'’s game';drawCategories();loadManagedQuestions();pollTimer=setInterval(poll,1800);}catch(e){$('joinStatus').textContent=e.message;}finally{$('connect').disabled=false;}}
 async function poll(){if(!session)return;try{const d=await request('/'+session.id+'/events?after='+lastEvent);for(const e of d.events||[]){
  lastEvent=Math.max(lastEvent,Number(e.id)||0);
  if(e.event_type==='clue_opened'&&e.payload){
@@ -63,6 +125,7 @@ async function poll(){if(!session)return;try{const d=await request('/'+session.i
  if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){}
 }}catch(e){status(e.message);}}
 $('closeHostAnswer').onclick=()=> $('answerOverlay').classList.remove('show');
+$('refreshQuestions').onclick=loadManagedQuestions;$('saveQuestion').onclick=saveQuestion;$('clearQuestion').onclick=clearQuestionForm;
 $('connect').onclick=connect;$('pairCode').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
 $('heads').onclick=()=>send('heads');$('tails').onclick=()=>send('tails');$('flip').onclick=()=>send('flip_coin');$('goBoard').onclick=()=>send('go_board');
 $('acceptable').onclick=()=>send('acceptable');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('next').onclick=()=>send('next_clue');$('pause').onclick=()=>send('pause_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};

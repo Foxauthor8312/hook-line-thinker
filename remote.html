@@ -17,6 +17,7 @@ h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 
 .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scorebox{background:#f1f5f8;border-radius:9px;padding:10px;text-align:center}.scorebox strong{display:block;font-size:24px;margin:5px}
 .smallbtn{font-size:12px;padding:9px 5px;min-height:38px}
+.answer-overlay{display:none;position:fixed;inset:0;background:#102337cc;z-index:9999;align-items:center;justify-content:center;padding:18px}.answer-overlay.show{display:flex}.answer-popup{width:min(520px,100%);background:white;border:3px solid var(--blue);border-radius:16px;padding:22px;box-shadow:0 16px 50px #0006}.answer-popup .eyebrow{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#64748b}.answer-popup h2{font-size:20px;margin:8px 0 18px}.answer-popup .answer{font-size:27px;font-weight:900;line-height:1.25;margin:12px 0 18px}.answer-popup .alternatives{font-size:14px;color:#526477;line-height:1.5;margin-bottom:14px}.answer-popup button{width:100%}
 @media(max-width:390px){main{padding:9px}.card{padding:12px}.categories{grid-template-columns:1fr 1fr}.values{gap:4px}.values button{font-size:12px}}
 </style></head><body>
 <header><h1>HOOK, LINE & THINKER</h1><small>INSTRUCTOR TABLET REMOTE</small></header>
@@ -29,7 +30,17 @@ h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 
  <section class="card"><h2>CLUE / ANSWER CONTROLS</h2><div class="grid2"><button id="correct" class="green">CORRECT</button><button id="incorrect" class="red">INCORRECT</button><button id="confirm" class="orange">OK / CONTINUE</button><button id="reveal" class="light">REVEAL ANSWER</button></div><button id="next" class="full light">BACK TO BOARD / NEXT TURN</button></section>
  <section class="card"><h2>SCORE ADJUSTMENT</h2><p class="hint">Use only for a manual scoring correction.</p><div class="scoregrid"><div class="scorebox">TEAM 1<strong id="score1">±</strong><div class="grid2"><button class="smallbtn light" data-team="0" data-delta="-10">−10</button><button class="smallbtn" data-team="0" data-delta="10">+10</button></div></div><div class="scorebox">TEAM 2<strong id="score2">±</strong><div class="grid2"><button class="smallbtn light" data-team="1" data-delta="-10">−10</button><button class="smallbtn" data-team="1" data-delta="10">+10</button></div></div></div></section>
  <section class="card"><div class="grid2"><button id="pause" class="light">PAUSE VOICE</button><button id="reset" class="red">RESET GAME</button></div></section>
-</div></main>
+</div>
+<div id="answerOverlay" class="answer-overlay" role="dialog" aria-modal="true" aria-labelledby="hostAnswerTitle">
+ <section class="answer-popup">
+  <div class="eyebrow">HOST REFERENCE — STUDENTS DO NOT SEE THIS</div>
+  <h2 id="hostAnswerTitle">Correct answer</h2>
+  <div class="answer" id="hostAnswerText">Waiting for clue…</div>
+  <div class="alternatives" id="hostAlternatives"></div>
+  <button class="orange" id="closeHostAnswer">CLOSE ANSWER</button>
+ </section>
+</div>
+</main>
 <script>
 const API='https://ndow-calendar-server.onrender.com/api/game-sessions';
 const categories=['Knot Tying','Fish Species','Tackle Equipment','Terminal Tackle','Baits & Lures','Water Safety'];
@@ -40,7 +51,18 @@ function status(message,good=false){$('controlStatus').textContent=message;$('co
 async function send(action,extra={}){if(!session||busy)return;busy=true;try{await request('/'+session.id+'/commands',{method:'POST',body:JSON.stringify({event_type:'remote_action',payload:{action,...extra}})});status('Sent: '+action.replaceAll('_',' '),true);}catch(e){status(e.message);}finally{busy=false;}}
 function drawCategories(){$('categories').innerHTML='';categories.forEach(name=>{const b=document.createElement('button');b.textContent=name;b.classList.toggle('selected',name===selectedCategory);b.onclick=()=>{selectedCategory=name;drawCategories();};$('categories').append(b);});$('values').innerHTML='';[10,20,30,40,50].forEach(value=>{const b=document.createElement('button');b.textContent=value;b.onclick=()=>send('select_clue',{category:selectedCategory,value});$('values').append(b);});}
 async function connect(){const code=$('pairCode').value.replace(/\D/g,'');if(code.length!==6){$('joinStatus').textContent='Enter all six digits.';return;} $('connect').disabled=true;$('joinStatus').textContent='Connecting…';try{const d=await request('/pair',{method:'POST',body:JSON.stringify({code})});session=d.session;token=d.device_token;$('join').style.display='none';$('controls').style.display='block';$('connectedName').textContent='Connected to '+session.instructor_name+'’s game';drawCategories();pollTimer=setInterval(poll,1800);}catch(e){$('joinStatus').textContent=e.message;}finally{$('connect').disabled=false;}}
-async function poll(){if(!session)return;try{const d=await request('/'+session.id+'/events?after='+lastEvent);for(const e of d.events||[]){lastEvent=Math.max(lastEvent,Number(e.id)||0);if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){} }}catch(e){status(e.message);}}
+async function poll(){if(!session)return;try{const d=await request('/'+session.id+'/events?after='+lastEvent);for(const e of d.events||[]){
+ lastEvent=Math.max(lastEvent,Number(e.id)||0);
+ if(e.event_type==='clue_opened'&&e.payload){
+  $('hostAnswerTitle').textContent=e.payload.category+' for '+e.payload.value;
+  $('hostAnswerText').textContent=e.payload.answer||'';
+  const alternatives=e.payload.alternatives||[];
+  $('hostAlternatives').textContent=alternatives.length?'Also accepted: '+alternatives.join(', '):'';
+  $('answerOverlay').classList.add('show');
+ }
+ if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){}
+}}catch(e){status(e.message);}}
+$('closeHostAnswer').onclick=()=> $('answerOverlay').classList.remove('show');
 $('connect').onclick=connect;$('pairCode').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
 $('heads').onclick=()=>send('heads');$('tails').onclick=()=>send('tails');$('flip').onclick=()=>send('flip_coin');$('goBoard').onclick=()=>send('go_board');
 $('correct').onclick=()=>send('correct');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('next').onclick=()=>send('next_clue');$('pause').onclick=()=>send('pause_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};

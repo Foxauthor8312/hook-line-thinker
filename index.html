@@ -581,18 +581,33 @@ async function pollRemoteEvents(){
 async function activateLaptopSession(){
  const params=new URLSearchParams(location.search);
  const launchCode=params.get('launch');
- if(!launchCode)return;
- showRemoteNotice('CONNECTING GAME SESSION','Activating secure laptop connection…');
+ let pairingCode=null;
  try{
-  const data=await remoteRequest('/redeem',{method:'POST',body:JSON.stringify({code:launchCode})});
-  remoteSession=data.session;remoteDeviceToken=data.device_token;
+  if(launchCode){
+   showRemoteNotice('CONNECTING GAME SESSION','Activating secure laptop connection…');
+   const data=await remoteRequest('/redeem',{method:'POST',body:JSON.stringify({code:launchCode})});
+   remoteSession=data.session;remoteDeviceToken=data.device_token;pairingCode=data.pairing_code;
+   sessionStorage.setItem('hlt_remote_session',JSON.stringify({session:remoteSession,token:remoteDeviceToken}));
+   history.replaceState({},document.title,location.pathname);
+  }else{
+   // The launch code is removed from the address bar after redemption.
+   // Restore the existing authenticated session after a refresh in this tab.
+   const saved=sessionStorage.getItem('hlt_remote_session');
+   if(!saved){showRemoteNotice('OPEN FROM NDOW PORTAL','Launch Hook, Line & Thinker from the NDOW Volunteer Portal so the laptop can securely load its Supabase question bank.');return;}
+   const restored=JSON.parse(saved);
+   remoteSession=restored.session;remoteDeviceToken=restored.token;
+   showRemoteNotice('RESTORING GAME SESSION','Reloading the question bank from Supabase…');
+  }
   const bank=await remoteRequest('/questions');
-  if(!Array.isArray(bank.questions)||!bank.questions.length)throw new Error('The question bank is empty. Run the Supabase question-bank migration first.');
-  questions=bank.questions;
+  if(!Array.isArray(bank.questions)||!bank.questions.length)throw new Error('Supabase returned no active questions. Check public.game_questions and its active flags.');
+  questions=bank.questions.map(q=>({...q,value:Number(q.value),used:false}));
   draw();
-  sessionStorage.setItem('hlt_remote_session',JSON.stringify({session:remoteSession,token:remoteDeviceToken}));
-  history.replaceState({},document.title,location.pathname);
-  showRemoteNotice('PAIR YOUR HOST TABLET','Instructor: <b>'+remoteSession.instructor_name+'</b><br><br>On the tablet open <b>remote.html</b> and enter this code:<div style="font-size:34px;letter-spacing:7px;font-weight:900;text-align:center;padding:12px;color:#19304B">'+data.pairing_code+'</div><small>Code expires in 24 hours and can only be used once.</small>');
+  if(pairingCode){
+   showRemoteNotice('PAIR YOUR HOST TABLET','Instructor: <b>'+remoteSession.instructor_name+'</b><br><br>On the tablet open <b>remote.html</b> and enter this code:<div style="font-size:34px;letter-spacing:7px;font-weight:900;text-align:center;padding:12px;color:#19304B">'+pairingCode+'</div><small>Code expires in 24 hours and can only be used once.</small>');
+  }else{
+   showRemoteNotice('GAME SESSION RESTORED','Loaded '+questions.length+' active questions from Supabase. Your existing tablet pairing remains in place.');
+  }
+  if(remotePollTimer)clearInterval(remotePollTimer);
   remotePollTimer=setInterval(pollRemoteEvents,1600);
  }catch(error){showRemoteNotice('SESSION NOT STARTED',error.message);}
 }

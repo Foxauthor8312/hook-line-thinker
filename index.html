@@ -132,7 +132,8 @@ function openClue(q){
  $('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
  $('turnStatus').textContent=teams[active]+' is answering.';
  $('responseText').textContent='The game is listening to '+teams[active]+'\'s answer. Host may override the decision if needed.';
- mic(false,'Listening for team answer');if(voiceOn)startListening();
+ if($('globalStatus'))$('globalStatus').textContent='Listening for '+teams[active]+' — speak your answer.';
+ mic(false,'Listening for '+teams[active]+' answer');if(voiceOn)startListening();
 }
 let pendingDecision=null,pendingTranscript='';
 function normalizeAnswer(value){
@@ -389,11 +390,19 @@ function initVoice(){
     mic(true,'Recognized: '+heard);
     if($('globalStatus'))$('globalStatus').textContent='Voice recognized: '+heard;
     chooseVoice(heard);
-   }else if(heard){interim+=heard+' ';}
+   }else if(heard){
+    interim+=heard+' ';
+    // Show live student speech immediately; Chrome may delay its final result
+    // until the speaker pauses, which previously left the team line blank.
+    if(phase==='student_answer'&&current){
+     $('teamResponse'+active).textContent=teams[active]+': '+heard;
+     if($('globalStatus'))$('globalStatus').textContent=teams[active]+' speaking: '+heard;
+    }
+   }
   }
   if(interim.trim()){
    mic(true,'Hearing: '+interim.trim());
-   if($('globalStatus'))$('globalStatus').textContent='Hearing you: '+interim.trim();
+   if(phase!=='student_answer'&&$('globalStatus'))$('globalStatus').textContent='Hearing you: '+interim.trim();
   }
  };
 }

@@ -417,14 +417,42 @@ async function remoteRequest(path,options={}){
  const response=await fetch(GAME_SESSION_API+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),...(remoteDeviceToken?{Authorization:'Bearer '+remoteDeviceToken}:{})}});
  const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Remote connection failed.');return data;
 }
+function handleTabletGameAction(p){
+ const action=String(p.action||'');
+ try{
+  if(action==='select_clue'){
+   if(phase==='board'){
+    const q=questions.find(x=>x.category===p.category&&x.value===Number(p.value)&&!x.used&&x.clue&&x.answer);
+    if(q)openClue(q);else showRemoteNotice('TABLET CONTROL','That clue is unavailable or has already been used.');
+   }
+  }else if(action==='correct')$('correct').click();
+  else if(action==='incorrect')$('incorrect').click();
+  else if(action==='confirm')$('confirmDecision').click();
+  else if(action==='reveal')$('reveal').click();
+  else if(action==='next_clue')finishClue();
+  else if(action==='heads')$('heads').click();
+  else if(action==='tails')$('tails').click();
+  else if(action==='flip_coin')$('flip').click();
+  else if(action==='go_board')$('goBoard').click();
+  else if(action==='reset')$('reset').click();
+  else if(action==='pause_voice')$('pauseVoice').click();
+  else if(action==='score_adjust'){
+   const team=Number(p.team),delta=Number(p.delta);
+   if([0,1].includes(team)&&Number.isInteger(delta)&&Math.abs(delta)<=1000){
+    scores[team]=Math.max(0,scores[team]+delta);updateScores();
+   }
+  }
+ }catch(error){showRemoteNotice('TABLET CONTROL ERROR',error.message||'The command could not be completed.');}
+}
 async function pollRemoteEvents(){
  if(!remoteSession||!remoteDeviceToken)return;
  try{
   const data=await remoteRequest('/'+remoteSession.id+'/events?after='+remoteLastEvent,{headers:{}});
   for(const event of data.events||[]){
    remoteLastEvent=Math.max(remoteLastEvent,Number(event.id)||0);
-   if(event.event_type==='tablet_connected')showRemoteNotice('TABLET CONNECTED','Your host tablet is paired. The remote test button is ready.');
+   if(event.event_type==='tablet_connected')showRemoteNotice('TABLET CONNECTED','Your host tablet is paired. Tablet game controls are ready.');
    if(event.event_type==='test_ping')showRemoteNotice('CONNECTION TEST RECEIVED','Success! The tablet sent a command and the classroom display received it.');
+   if(event.event_type==='remote_action')handleTabletGameAction(event.payload||{});
   }
  }catch(error){showRemoteNotice('CONNECTION INTERRUPTED',error.message);}
 }

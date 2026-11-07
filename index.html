@@ -335,8 +335,11 @@ function flipCoin(){
      $('coinStatus').textContent=outcome.toUpperCase()+'! '+(outcome===called?'The calling team wins.':'The other team wins.');
      active=outcome===called?0:1;updateScores();
      $('coinPrompt').textContent=outcome.toUpperCase()+'! '+teams[active]+' wins the toss and picks first.';
-     $('goBoard').classList.remove('hidden');say(outcome+'. '+teams[active]+' wins the toss and picks first.');
+     $('goBoard').classList.add('hidden');
      busyFlip=false;
+     say(outcome+'. '+teams[active]+' wins the toss and picks first.');
+     // Automatically open the board after the toss result is announced.
+     setTimeout(()=>{if(phase==='coin'&&$('goBoard'))$('goBoard').click();},2200);
     }
     requestAnimationFrame(reveal);
    },750);

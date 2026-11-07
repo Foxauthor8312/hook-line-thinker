@@ -315,11 +315,117 @@ function finishClue(){
  const wasCorrect=current.wasCorrect!==false;
  stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
  $('reveal').textContent='REVEAL ANSWER';current=null;phase='board';
+ if(questions.length&&questions.every(q=>q.used)){
+  beginThinkHarder();return;
+ }
  const nextPrompt=wasCorrect?teams[active]+' selects next. Say “We’ll take, category, for, value.”':'Game goes to '+teams[active]+'. Choose a clue.';
  $('turnStatus').textContent=nextPrompt;$('responseText').textContent=nextPrompt;
  say(wasCorrect?teams[active]+', choose another clue.':'Game goes to '+teams[active]+'. Choose a clue.');
  if(voiceOn){mic(false,'Ready for board selection');startListening();}
 }
+
+// Think Harder final round — Veterans Memorial Park Pond regulations.
+let finalRoundTimer=null,finalRoundEnds=0,finalStage='',finalWagers=[0,0],finalAnswers=[false,false],finalActiveTeam=0;
+const finalQuestion={
+ category:'Nevada Fishing Regulations',
+ clue:"You're fishing for trout in Veterans Memorial Park Pond. How many game fish can you catch and keep in one day, and how many can you possess altogether?",
+ answer:'Three game fish daily and six game fish in possession.',
+ acceptedAnswers:[
+  'three game fish daily and six game fish in possession',
+  'three a day and six in possession','three daily six total',
+  'three per day six altogether','three game fish per day six game fish possession limit',
+  'daily limit of three game fish possession limit of six game fish',
+  'three game fish and six game fish'
+ ],
+ alternatives:['3 daily / 6 possession','three per day, six in possession','three game fish daily; six game fish possession limit']
+};
+function ensureFinalPanel(){
+ let p=$('thinkHarderPanel');if(p)return p;
+ p=document.createElement('section');p.id='thinkHarderPanel';p.className='panel';
+ p.style.cssText='display:none;text-align:center;margin:18px auto;padding:24px;max-width:900px;background:#fff;border:2px solid #589FD6;border-radius:16px;color:#19304B';
+ p.innerHTML='<div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#589FD6">HOOK, LINE & THINKER · FINAL CHALLENGE</div><h2 id="finalCategory" style="margin:12px 0;font-size:clamp(22px,4vw,34px)"></h2><div id="finalClue" style="font-size:clamp(18px,2.6vw,25px);line-height:1.45;margin:18px auto;max-width:760px"></div><div id="finalInstruction" style="font-size:18px;margin:18px 0"></div><div id="finalCountdown" style="font-size:clamp(52px,10vw,88px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1">01:00</div><div id="finalStatus" style="font-size:16px;margin-top:12px"></div></section>';
+ $('board').insertAdjacentElement('afterend',p);return p;
+}
+function finalTimer(seconds,onDone){
+ clearInterval(finalRoundTimer);finalRoundEnds=Date.now()+seconds*1000;
+ const tick=()=>{const left=Math.max(0,Math.ceil((finalRoundEnds-Date.now())/1000));$('finalCountdown').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');if(left<=0){clearInterval(finalRoundTimer);finalRoundTimer=null;onDone();}};
+ tick();finalRoundTimer=setInterval(tick,200);
+}
+function beginThinkHarder(){
+ stopListening();clearResponseTimer();phase='think_wager';finalStage='wager';finalWagers=[0,0];finalAnswers=[false,false];finalActiveTeam=0;
+ $('board').style.display='none';$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
+ const p=ensureFinalPanel();p.style.display='block';
+ $('finalCategory').textContent='Our Think Harder category is… '+finalQuestion.category;
+ $('finalClue').textContent=finalQuestion.clue;
+ $('finalInstruction').textContent='Contestants, write your wagers on paper and place them face down. You may wager up to and including the amount of points you have.';
+ $('finalStatus').textContent='Write your wagers now.';
+ $('turnStatus').textContent='THINK HARDER — FINAL CHALLENGE';
+ say('Our Think Harder category is, '+finalQuestion.category+'. Contestants, write your wagers on paper and place them face down. You may wager up to and including the amount you have in points.',()=>{
+  if(phase!=='think_wager')return;
+  finalTimer(15,beginFinalDiscussion);
+ });
+}
+function beginFinalDiscussion(){
+ if(phase!=='think_wager')return;
+ phase='think_discussion';finalStage='discussion';
+ $('finalInstruction').textContent="Please put your pencils down. You'll have one minute to discuss a response with your team. Countdown begins: now!";
+ $('finalStatus').textContent='Team discussion in progress.';
+ say("Please put your pencils down. We'll start Think Harder. You'll have one minute to discuss a response with your team. Countdown begins: now!",()=>{
+  if(phase==='think_discussion')finalTimer(60,beginFinalAnswers);
+ });
+}
+function beginFinalAnswers(){
+ if(phase!=='think_discussion')return;
+ clearInterval(finalRoundTimer);finalRoundTimer=null;phase='think_answer';finalStage='answer';finalActiveTeam=0;
+ $('finalCountdown').textContent='00:00';$('finalInstruction').textContent='The discussion time is over. '+teams[0]+', give your answer.';
+ $('finalStatus').textContent='Listening for '+teams[0]+'.';
+ say('Time is up. The final clue again. '+finalQuestion.clue+' '+teams[0]+', what is your answer?',()=>{
+  if(phase==='think_answer'&&voiceOn)startListening();
+ });
+}
+function finalAnswerMatches(text){
+ const norm=normalizeAnswer(text);
+ const patterns=[
+  /\bthree\b.*\b(game )?fish\b.*\bsix\b/,
+  /\bsix\b.*\b(game )?fish\b.*\bthree\b/,
+  /\b3\b.*\b6\b/,/\b6\b.*\b3\b/
+ ];
+ return patterns.some(p=>p.test(norm))&&/\b(three|3)\b/.test(norm)&&/\b(six|6)\b/.test(norm);
+}
+function receiveFinalAnswer(transcript){
+ if(phase!=='think_answer'||!transcript.trim())return;
+ stopListening();
+ const ok=finalAnswerMatches(transcript);finalAnswers[finalActiveTeam]=ok;
+ $('finalStatus').textContent=teams[finalActiveTeam]+' answered: '+transcript+' — '+(ok?'correct':'incorrect')+'.';
+ $('finalInstruction').textContent=ok?'That’s correct! How much did you wager?':teams[finalActiveTeam]+' — incorrect. How much did you wager?';
+ say((ok?'That’s correct! ':'That is not correct. ')+teams[finalActiveTeam]+', how much did you wager?',()=>{
+  phase='think_wager_amount';finalStage='wager_amount';if(voiceOn)startListening();
+ });
+}
+function receiveFinalWager(transcript){
+ if(phase!=='think_wager_amount')return;
+ const spoken=transcript.toLowerCase();
+ const words={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100};
+ let amountMatch=spoken.match(/\b\d+\b/),amount=amountMatch?Number(amountMatch[0]):null;
+ if(amount===null){const found=Object.entries(words).find(([w])=>new RegExp('\\b'+w+'\\b').test(spoken));if(found)amount=found[1];}
+ const team=finalActiveTeam,max=Math.max(0,Number(scores[team])||0);
+ if(amount===null||amount<0||amount>max){$('finalStatus').textContent='Please state a wager from zero up to '+max+' points.';say('Please state a wager from zero up to '+max+' points.',()=>{if(voiceOn)startListening();});return;}
+ finalWagers[team]=amount;
+ scores[team]+=finalAnswers[team]?amount:-amount;updateScores();
+ $('finalStatus').textContent=teams[team]+' wagered '+amount+' points. '+(finalAnswers[team]?'Added ':'Subtracted ')+amount+'.';
+ stopListening();
+ if(team===0){finalActiveTeam=1;phase='think_answer';finalStage='answer';$('finalInstruction').textContent=teams[1]+', give your answer.';say(teams[1]+', here is the final clue again. '+finalQuestion.clue+' What is your answer?',()=>{if(voiceOn)startListening();});}
+ else finishThinkHarder();
+}
+function finishThinkHarder(){
+ phase='game_over';finalStage='complete';stopListening();clearInterval(finalRoundTimer);finalRoundTimer=null;
+ const winner=scores[0]===scores[1]?'It is a tie!':teams[scores[0]>scores[1]?0:1]+' wins!';
+ $('finalInstruction').textContent='FINAL SCORES';$('finalCountdown').textContent='—';
+ $('finalStatus').textContent=teams[0]+': '+scores[0]+' points  |  '+teams[1]+': '+scores[1]+' points';
+ $('turnStatus').textContent='GAME OVER — '+winner;
+ say('Final scores. '+teams[0]+', '+scores[0]+' points. '+teams[1]+', '+scores[1]+' points. '+winner);
+}
+
 function coinCall(v){if(busyFlip||!$('goBoard').classList.contains('hidden'))return;called=v;$('coinStatus').textContent=v+' called. Say “Flip it.”';$('flip').disabled=false;speakThenListen(v+'. Say flip it when ready.');}
 let coinAudio=null;
 function audioEngine(){
@@ -455,6 +561,10 @@ function chooseVoice(transcript){
   }else if(transcript.trim()){
    $('globalStatus').textContent='Building selection: '+boardCommandBuffer+' — say category and point value.';
   }
+ }else if(phase==='think_answer'){
+  if(transcript.trim())receiveFinalAnswer(transcript);
+ }else if(phase==='think_wager_amount'){
+  if(transcript.trim())receiveFinalWager(transcript);
  }else if(phase==='student_answer'){
   if(transcript.trim()){
    $('teamResponse'+active).textContent=teams[active]+': '+transcript;

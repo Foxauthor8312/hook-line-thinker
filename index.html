@@ -503,7 +503,8 @@ $('letsPlayBtn').onclick=()=>{
 $('heads').onclick=()=>coinCall('Heads');$('tails').onclick=()=>coinCall('Tails');$('flip').onclick=flipCoin;
 $('goBoard').onclick=()=>{
  screen('game');phase='board';draw();updateScores();
- $('turnStatus').textContent=teams[active]+' selects first. Say “We’ll take, category, for, value.”';
+ $('turnStatus').textContent=teams[active]+' goes first. Make a selection.';
+  say(teams[active]+' goes first. Make a selection.');
  if(voiceOn)startListening();
 };
 $('reveal').onclick=finishClue;$('correct').onclick=()=>overrideDecision(true);$('incorrect').onclick=()=>overrideDecision(false);$('confirmDecision').onclick=confirmDecision;

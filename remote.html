@@ -1,83 +1,49 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hook, Line & Thinker — Host Remote</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hook, Line & Thinker — Tablet Remote</title>
 <style>
-:root{--navy:#19304B;--blue:#589FD6;--green:#7A9E7F;--orange:#F29647}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#eef3f7;color:var(--navy);font:16px Arial,sans-serif;display:grid;place-items:center;padding:18px}
-main{width:min(520px,100%);background:white;border:1px solid #dbe3ec;border-radius:16px;box-shadow:0 8px 28px #19304b18;overflow:hidden}
-header{background:var(--navy);color:white;padding:22px;text-align:center}h1{font:700 24px Georgia,serif;letter-spacing:1px;margin:0}header p{margin:7px 0 0;font-size:12px;letter-spacing:2px;color:#d7e4ed}
-section{padding:24px}label{display:block;font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:9px}
-input{width:100%;font-size:30px;letter-spacing:9px;text-align:center;padding:14px;border:1px solid #bac8d5;border-radius:9px;color:var(--navy)}
-button{width:100%;border:0;border-radius:9px;padding:15px;margin-top:14px;background:var(--navy);color:white;font-size:15px;font-weight:700;cursor:pointer}
-button:disabled{opacity:.5}button.secondary{background:#e8eef3;color:var(--navy)}
-.status{margin-top:16px;padding:13px;border-radius:9px;background:#f1f5f8;color:#425b70;line-height:1.45;font-size:14px}
-.status.good{background:#edf5ee;color:#315a39}.status.bad{background:#fff1f0;color:#9b2828}
-#controls{display:none}#connectedName{font-weight:700;color:var(--green);margin-bottom:14px}
-footer{padding:0 24px 22px;text-align:center;color:#64748b;font-size:12px}
-</style>
-</head>
-<body>
+:root{--navy:#19304B;--blue:#589FD6;--green:#7A9E7F;--orange:#F29647;--ink:#19304B}
+*{box-sizing:border-box}body{margin:0;background:#edf2f6;color:var(--ink);font:16px Arial,sans-serif}
+header{background:var(--navy);color:white;padding:16px;text-align:center}h1{font:700 22px Georgia,serif;margin:0}header small{letter-spacing:2px}
+main{max-width:760px;margin:auto;padding:14px}.card{background:white;border:1px solid #dbe3ec;border-radius:13px;padding:16px;margin:0 0 13px;box-shadow:0 3px 12px #19304b0d}
+label{font-size:12px;font-weight:800;display:block;margin-bottom:8px}input{width:100%;padding:13px;font-size:26px;letter-spacing:7px;text-align:center;border:1px solid #bac8d5;border-radius:8px;color:var(--navy)}
+button{border:0;border-radius:9px;padding:13px 12px;background:var(--navy);color:white;font-weight:800;font-size:14px;min-height:46px;cursor:pointer}
+button:disabled{opacity:.35}button.orange{background:var(--orange);color:#172b40}button.green{background:var(--green)}button.red{background:#a33e3e}button.light{background:#e8eef3;color:var(--navy)}
+.full{width:100%;margin-top:10px}.status{font-size:13px;line-height:1.4;padding:11px;border-radius:8px;background:#f1f5f8;margin-top:10px}.good{background:#edf5ee;color:#315a39}
+#controls{display:none}.top{display:flex;justify-content:space-between;gap:8px;align-items:center}.teamline{font-weight:800;font-size:14px}
+h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 10px}
+.categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.categories button{background:#e8eef3;color:var(--navy);border:2px solid transparent}.categories button.selected{border-color:var(--orange);background:#fff3e7}
+.values{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}.values button{padding:10px 2px;background:#234d70;color:#ffd18b}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scorebox{background:#f1f5f8;border-radius:9px;padding:10px;text-align:center}.scorebox strong{display:block;font-size:24px;margin:5px}
+.smallbtn{font-size:12px;padding:9px 5px;min-height:38px}
+@media(max-width:390px){main{padding:9px}.card{padding:12px}.categories{grid-template-columns:1fr 1fr}.values{gap:4px}.values button{font-size:12px}}
+</style></head><body>
+<header><h1>HOOK, LINE & THINKER</h1><small>INSTRUCTOR TABLET REMOTE</small></header>
 <main>
-<header><h1>HOOK, LINE & THINKER</h1><p>HOST CONTROL PANEL</p></header>
-<section id="join">
-<label for="pairCode">ENTER THE SIX-DIGIT CODE SHOWN ON THE LAPTOP</label>
-<input id="pairCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Six digit pairing code">
-<button id="connect">CONNECT TO GAME</button>
-<div id="joinStatus" class="status">Open the game on the classroom laptop first. Its pairing code will appear in the upper-right corner.</div>
-</section>
-<section id="controls">
-<div id="connectedName"></div>
-<div class="status good">Your tablet is paired with the classroom display. This is a connection test; game controls will be added after the link is verified.</div>
-<button id="test">TEST CONNECTION</button>
-<button id="disconnect" class="secondary">DISCONNECT TABLET</button>
-<div id="controlStatus" class="status">Ready.</div>
-</section>
-<footer>Keep this page open during the game. Your device connection is limited to this game session.</footer>
-</main>
+<section id="join" class="card"><label for="pairCode">SIX-DIGIT LAPTOP PAIRING CODE</label><input id="pairCode" inputmode="numeric" maxlength="6" placeholder="••••••"><button class="full orange" id="connect">CONNECT TO GAME</button><div id="joinStatus" class="status">Enter the code displayed on the classroom laptop.</div></section>
+<div id="controls">
+ <section class="card"><div class="top"><div class="teamline" id="connectedName">Connected</div><button class="light smallbtn" id="disconnect">DISCONNECT</button></div><div id="controlStatus" class="status good">Tablet connected. Controls are ready.</div></section>
+ <section class="card"><h2>GAME NAVIGATION</h2><div class="grid3"><button id="heads" class="smallbtn">HEADS</button><button id="tails" class="smallbtn">TAILS</button><button id="flip" class="orange smallbtn">FLIP COIN</button></div><button id="goBoard" class="full">SHOW GAME BOARD</button></section>
+ <section class="card"><h2>SELECT A CLUE</h2><p class="hint">Choose a category, then a point value.</p><div class="categories" id="categories"></div><div class="values" id="values"></div></section>
+ <section class="card"><h2>CLUE / ANSWER CONTROLS</h2><div class="grid2"><button id="correct" class="green">CORRECT</button><button id="incorrect" class="red">INCORRECT</button><button id="confirm" class="orange">OK / CONTINUE</button><button id="reveal" class="light">REVEAL ANSWER</button></div><button id="next" class="full light">BACK TO BOARD / NEXT TURN</button></section>
+ <section class="card"><h2>SCORE ADJUSTMENT</h2><p class="hint">Use only for a manual scoring correction.</p><div class="scoregrid"><div class="scorebox">TEAM 1<strong id="score1">±</strong><div class="grid2"><button class="smallbtn light" data-team="0" data-delta="-10">−10</button><button class="smallbtn" data-team="0" data-delta="10">+10</button></div></div><div class="scorebox">TEAM 2<strong id="score2">±</strong><div class="grid2"><button class="smallbtn light" data-team="1" data-delta="-10">−10</button><button class="smallbtn" data-team="1" data-delta="10">+10</button></div></div></div></section>
+ <section class="card"><div class="grid2"><button id="pause" class="light">PAUSE VOICE</button><button id="reset" class="red">RESET GAME</button></div></section>
+</div></main>
 <script>
 const API='https://ndow-calendar-server.onrender.com/api/game-sessions';
-let session=null,token='',lastEvent=0,pollTimer=null;
+const categories=['Knot Tying','Fish Species','Tackle Equipment','Terminal Tackle','Baits & Lures','Water Safety'];
+let session=null,token='',lastEvent=0,pollTimer=null,selectedCategory=categories[0],busy=false;
 const $=id=>document.getElementById(id);
-async function request(path,options={}){
- const response=await fetch(API+path,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});
- const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Connection failed.');return data;
-}
-function status(el,message,kind=''){el.textContent=message;el.className='status '+kind;}
-async function connect(){
- const code=$('pairCode').value.replace(/\D/g,'');
- if(code.length!==6){status($('joinStatus'),'Enter all six digits from the laptop.','bad');return;}
- $('connect').disabled=true;status($('joinStatus'),'Connecting to the active game…');
- try{
-  const data=await request('/pair',{method:'POST',body:JSON.stringify({code})});
-  session=data.session;token=data.device_token;
-  $('join').style.display='none';$('controls').style.display='block';
-  $('connectedName').textContent='Connected to '+session.instructor_name+"'s game";
-  status($('controlStatus'),'Connection established. Tap TEST CONNECTION to send a message to the laptop.','good');
-  pollTimer=setInterval(pollEvents,1800);
- }catch(error){status($('joinStatus'),error.message,'bad');}
- finally{$('connect').disabled=false;}
-}
-async function pollEvents(){
- if(!session||!token)return;
- try{
-  const data=await request('/'+session.id+'/events?after='+lastEvent);
-  for(const event of data.events||[]){
-   lastEvent=Math.max(lastEvent,Number(event.id)||0);
-   if(event.event_type==='test_ping')status($('controlStatus'),'The laptop received your test command. Tablet-to-laptop connection verified!','good');
-  }
- }catch(error){status($('controlStatus'),error.message,'bad');}
-}
-$('connect').onclick=connect;
-$('pairCode').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6);});
-$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
-$('test').onclick=async()=>{
- $('test').disabled=true;status($('controlStatus'),'Sending test command…');
- try{await request('/'+session.id+'/commands',{method:'POST',body:JSON.stringify({event_type:'test_ping'})});status($('controlStatus'),'Command sent. Check the laptop display for confirmation.','good');}
- catch(error){status($('controlStatus'),error.message,'bad');}
- finally{$('test').disabled=false;}
-};
-$('disconnect').onclick=()=>{if(pollTimer)clearInterval(pollTimer);session=null;token='';lastEvent=0;$('controls').style.display='none';$('join').style.display='block';$('pairCode').value='';status($('joinStatus'),'Disconnected. Enter a new pairing code to reconnect.');};
-</script>
-</body></html>
+async function request(path,options={}){const response=await fetch(API+path,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Request failed.');return data;}
+function status(message,good=false){$('controlStatus').textContent=message;$('controlStatus').className='status'+(good?' good':'');}
+async function send(action,extra={}){if(!session||busy)return;busy=true;try{await request('/'+session.id+'/commands',{method:'POST',body:JSON.stringify({event_type:'remote_action',payload:{action,...extra}})});status('Sent: '+action.replaceAll('_',' '),true);}catch(e){status(e.message);}finally{busy=false;}}
+function drawCategories(){$('categories').innerHTML='';categories.forEach(name=>{const b=document.createElement('button');b.textContent=name;b.classList.toggle('selected',name===selectedCategory);b.onclick=()=>{selectedCategory=name;drawCategories();};$('categories').append(b);});$('values').innerHTML='';[10,20,30,40,50].forEach(value=>{const b=document.createElement('button');b.textContent=value;b.onclick=()=>send('select_clue',{category:selectedCategory,value});$('values').append(b);});}
+async function connect(){const code=$('pairCode').value.replace(/\D/g,'');if(code.length!==6){$('joinStatus').textContent='Enter all six digits.';return;} $('connect').disabled=true;$('joinStatus').textContent='Connecting…';try{const d=await request('/pair',{method:'POST',body:JSON.stringify({code})});session=d.session;token=d.device_token;$('join').style.display='none';$('controls').style.display='block';$('connectedName').textContent='Connected to '+session.instructor_name+'’s game';drawCategories();pollTimer=setInterval(poll,1800);}catch(e){$('joinStatus').textContent=e.message;}finally{$('connect').disabled=false;}}
+async function poll(){if(!session)return;try{const d=await request('/'+session.id+'/events?after='+lastEvent);for(const e of d.events||[]){lastEvent=Math.max(lastEvent,Number(e.id)||0);if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){} }}catch(e){status(e.message);}}
+$('connect').onclick=connect;$('pairCode').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
+$('heads').onclick=()=>send('heads');$('tails').onclick=()=>send('tails');$('flip').onclick=()=>send('flip_coin');$('goBoard').onclick=()=>send('go_board');
+$('correct').onclick=()=>send('correct');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('next').onclick=()=>send('next_clue');$('pause').onclick=()=>send('pause_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};
+document.querySelectorAll('[data-team]').forEach(b=>b.onclick=()=>send('score_adjust',{team:Number(b.dataset.team),delta:Number(b.dataset.delta)}));
+$('disconnect').onclick=()=>{if(pollTimer)clearInterval(pollTimer);session=null;token='';lastEvent=0;$('controls').style.display='none';$('join').style.display='block';$('pairCode').value='';$('joinStatus').textContent='Disconnected. Enter a new laptop code to reconnect.';};
+</script></body></html>

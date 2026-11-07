@@ -462,7 +462,8 @@ function stopGameMicMeter(){
  const state=$('gameMicState');if(state){state.textContent='OFF';state.style.color='#64748b';}
 }
 $('voiceToggle').onclick=()=>{
- if(!rec)initVoice();if(!rec)return;
+ initVoice();
+ if(!window.SpeechSDK){mic(false,'Azure Speech SDK is not loaded. Refresh the classroom display.');return;}
  voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'VOICE OFF':'VOICE ON';
  if(voiceOn){startGameMicMeter();recognitionBlocked=false;startListening();}else{stopListening();stopGameMicMeter();mic(false,'Voice off');if($('voiceCheckMark')){$('voiceCheckMark').textContent='3';$('voiceCheckMark').style.background='#19304b';}}
 };

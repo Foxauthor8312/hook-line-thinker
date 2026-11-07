@@ -390,6 +390,18 @@ function startThinkHarderMusic(){
   },50);
  }).catch(error=>console.warn('Think Harder music could not start:',error));
 }
+function launchThinkHarderAudioTest(){
+ stopListening();clearResponseTimer();clearInterval(finalRoundTimer);finalRoundTimer=null;
+ phase='think_wager';finalStage='wager';finalWagers=[0,0];finalAnswers=[false,false];finalActiveTeam=0;
+ $('board').style.display='none';$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
+ const p=ensureFinalPanel();p.style.display='block';
+ $('finalCategory').textContent='AUDIO TEST — '+finalQuestion.category;
+ $('finalClue').textContent=finalQuestion.clue;
+ $('finalInstruction').textContent='Audio test: the one-minute discussion music should fade in now and fade out at the end.';
+ $('finalStatus').textContent='Testing the 60-second discussion music.';
+ $('turnStatus').textContent='THINK HARDER — AUDIO TEST';
+ beginFinalDiscussion();
+}
 function beginFinalDiscussion(){
  if(phase!=='think_wager')return;
  phase='think_discussion';finalStage='discussion';
@@ -792,6 +804,7 @@ async function pollRemoteEvents(){
 async function activateLaptopSession(){
  const params=new URLSearchParams(location.search);
  const launchCode=params.get('launch');
+ const audioTestRequested=params.get('test')==='thinkharder';
  let pairingCode=null;
  try{
   if(launchCode){
@@ -813,6 +826,9 @@ async function activateLaptopSession(){
   if(!Array.isArray(bank.questions)||!bank.questions.length)throw new Error('Supabase returned no active questions. Check public.game_questions and its active flags.');
   questions=bank.questions.map(q=>({...q,value:Number(q.value),used:false}));
   draw();
+  if(audioTestRequested){
+   setTimeout(launchThinkHarderAudioTest,500);
+  }
   if(pairingCode){
    showRemoteNotice('PAIR YOUR HOST TABLET','Instructor: <b>'+remoteSession.instructor_name+'</b><br><br>On the tablet open <b>remote.html</b> and enter this code:<div style="font-size:34px;letter-spacing:7px;font-weight:900;text-align:center;padding:12px;color:#19304B">'+pairingCode+'</div><small>Code expires in 24 hours and can only be used once.</small>');
   }else{

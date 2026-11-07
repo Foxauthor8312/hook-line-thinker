@@ -140,10 +140,27 @@ function normalizeAnswer(value){
   .replace(/^(what is|what are|who is|who are|the answer is|i think it is|i think its) /,'')
   .replace(/^(a|an|the) /,'').trim();
 }
+function phoneticKey(word){
+ // A compact, conservative Soundex-style key for common spoken-word
+ // substitutions. Account for silent initial letters in words such as knot,
+ // know, write and gnat before encoding the sound.
+ let w=String(word||'').toLowerCase().replace(/^(kn|gn|wr|ps|pn)/,m=>m.slice(1));
+ if(!w)return '';
+ const first=w[0].toUpperCase();
+ const code={b:1,f:1,p:1,v:1,c:2,g:2,j:2,k:2,q:2,s:2,x:2,z:2,d:3,t:3,l:4,m:5,n:5,r:6};
+ let out=first,last=code[w[0]]||0;
+ for(let i=1;i<w.length&&out.length<4;i++){
+  const digit=code[w[i]]||0;
+  if(digit&&digit!==last)out+=digit;
+  last=digit;
+ }
+ return (out+'000').slice(0,4);
+}
 function answerWordMatches(heard,expected){
  if(heard===expected)return true;
+ if(heard.length>=3&&expected.length>=3&&phoneticKey(heard)===phoneticKey(expected))return true;
  if(heard.length<4||expected.length<4)return false;
- // Allow one small speech-recognition error, e.g. "trut" for "trout".
+ // Also allow one small transcription edit, e.g. "trut" for "trout".
  let previous=Array.from({length:expected.length+1},(_,i)=>i);
  for(let i=1;i<=heard.length;i++){
   const currentRow=[i];
@@ -158,12 +175,13 @@ function evaluateAnswer(transcript){
  const heard=normalizeAnswer(transcript);
  const heardWords=heard.split(' ').filter(Boolean);
  const accepted=[current.answer,...(current.alternatives||[])].map(normalizeAnswer).filter(Boolean);
- // Accept the full response or a distinctive answer word, including one
- // character of speech-recognition variation. Avoid generic topic words.
- const generic=new Set(['the','and','for','with','from','into','type','kind','knot','fish','fishing','bait','lure','lures','tackle','equipment','terminal','water','safety','species']);
+ // Match a complete answer or its distinctive words. Topic words are ignored
+ // in multi-word answers, but a one-word answer such as "knot" remains valid.
+ const generic=new Set(['the','and','for','with','from','into','type','kind','fish','fishing','bait','lure','lures','tackle','equipment','terminal','water','safety','species']);
  return accepted.some(answer=>{
   if(heard===answer||(' '+heard+' ').includes(' '+answer+' '))return true;
-  const keywords=answer.split(' ').filter(word=>word.length>=3&&!generic.has(word));
+  const words=answer.split(' ').filter(Boolean);
+  const keywords=words.length===1?words:words.filter(word=>word.length>=3&&!generic.has(word));
   return keywords.some(expected=>heardWords.some(word=>answerWordMatches(word,expected)));
  });
 }

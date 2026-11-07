@@ -791,6 +791,7 @@ function handleTabletGameAction(p){
   else if(action==='flip_coin')$('flip').click();
   else if(action==='go_board')$('goBoard').click();
   else if(action==='reset')$('reset').click();
+  else if(action==='voice_on'){if(!voiceOn)$('voiceToggle').click();}
   else if(action==='pause_voice')$('pauseVoice').click();
   else if(action==='score_adjust'){
    const team=Number(p.team),delta=Number(p.delta);

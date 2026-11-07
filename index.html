@@ -25,6 +25,9 @@
 /* Compact classroom controls and board-overlay clue panel */
 #game{position:relative}
 #game .board{margin-bottom:8px}
+#game .team-responses{margin:4px 2px 10px;text-align:left;font-size:13px;line-height:1.55;color:#e8eef5}
+#game .team-responses div{padding:1px 0}
+#game .team-responses div:empty{display:none}
 #game .tile{padding:8px 4px;min-height:48px}
 #game button{padding:5px 9px;font-size:12px;line-height:1.15;border-radius:6px}
 #game .actions{gap:6px;margin:6px 0}
@@ -57,6 +60,10 @@
  <div class="actions"><button id="goBoard" class="primary hidden">GO TO GAME BOARD</button></div>
 </section>
 <section id="game" class="hidden"><div class="topbar"><div class="status" id="turnStatus">Choose a category and value.</div></div><div class="board" id="board"></div>
+<div id="teamResponses" class="team-responses" aria-live="polite">
+ <div id="teamResponse0">Team 1: —</div>
+ <div id="teamResponse1">Team 2: —</div>
+</div>
 <div class="scores"><div class="team" id="teamBox0"><input id="teamName0" value="Team 1"><div class="score" id="score0">0</div></div><div class="reel">🎣</div><div class="team" id="teamBox1"><input id="teamName1" value="Team 2"><div class="score" id="score1">0</div></div></div>
 <div id="backupControls" class="compact-controls hidden"><button id="correct" class="good hidden">OVERRIDE: CORRECT</button><button id="incorrect" class="bad hidden">OVERRIDE: INCORRECT</button><button id="confirmDecision" class="primary hidden">OK — CONTINUE</button><button id="reveal" class="primary hidden">REVEAL ANSWER</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
 <div class="actions"><button id="pauseVoice">PAUSE VOICE</button><button id="reset">RESET GAME</button></div></section></main>
@@ -115,6 +122,7 @@ let attempts=0, lastScoringTeam=0;
 function openClue(q){
  if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
  pendingDecision=null;pendingTranscript='';
+ $('teamResponse0').textContent=teams[0]+': —';$('teamResponse1').textContent=teams[1]+': —';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
  $('answer').classList.add('hidden');$('note').classList.add('hidden');
  $('answer').textContent='Correct response: '+q.answer+((q.alternatives||[]).length?' (also accepted: '+q.alternatives.join(', ')+')':'');
@@ -313,6 +321,7 @@ function chooseVoice(transcript){
   }
  }else if(phase==='student_answer'){
   if(transcript.trim()){
+   $('teamResponse'+active).textContent=teams[active]+': '+transcript;
    const ok=evaluateAnswer(transcript);
    $('globalStatus').textContent='Answer heard: '+transcript+' — '+(ok?'Correct':'Incorrect');
    announceDecision(ok,transcript);

@@ -81,7 +81,7 @@ let voiceOn=false,rec=null,listening=false,phase='setup',recognitionBlocked=fals
 let boardCommandBuffer='',boardCommandTime=0;
 function screen(id){['preflight','setup','coin','game'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
 let selectedSpeechVoice=null;
-function say(t){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;speechSynthesis.speak(u);}
+function say(t,onend){if(!('speechSynthesis'in window)){if(onend)setTimeout(onend,1200);return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;if(onend)u.onend=onend;speechSynthesis.speak(u);}
 function speakThenListen(t){
  stopListening();
  if(!('speechSynthesis'in window)){if(voiceOn)startListening();return;}
@@ -217,7 +217,8 @@ function reveal(wasCorrect){
   :'The answer is '+current.answer+'. Host may explain or take questions. Use the tablet to continue when ready.';
  say(wasCorrect
   ?'Correct! The answer is '+current.answer+'. '+teams[active]+', you select the next clue.'
-  :'The correct response is '+current.answer+'.');
+  :'The correct response is '+current.answer+'.',
+  wasCorrect?()=>setTimeout(()=>{if(current&&phase==='answer_revealed')finishClue();},900):null);
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;

@@ -172,8 +172,68 @@ function startResponseTimer(){
   }
  },5000);
 }
+
+const thinkBonusBank={
+'Knot Tying':{clue:'Which knot creates a fixed loop at the hook or lure so it can move more freely?',answer:'Non-slip loop knot',alts:['Kreh loop','non slip loop']},
+'Fish Species':{clue:'Which trout is named for the red or orange slash marks beneath its lower jaw?',answer:'Cutthroat trout',alts:['cutthroat']},
+'Tackle Equipment':{clue:'A fast-action fishing rod bends primarily in which part?',answer:'The tip',alts:['tip','upper third']},
+'Terminal Tackle':{clue:'What small component with a rotating joint helps reduce line twist?',answer:'Swivel',alts:['a swivel']},
+'Baits & Lures':{clue:'What retrieve uses short rod-tip movements and pauses to imitate an injured baitfish?',answer:'Twitching retrieve',alts:['twitching','twitch retrieve']},
+'Water Safety':{clue:'Which U.S. Coast Guard life-jacket type is designed to turn most unconscious wearers face-up?',answer:'Type I PFD',alts:['type one','type 1','offshore life jacket']}
+};
+let bonusQ=null,bonusTeam=0,bonusWager=0,bonusTimer=null,bonusEnd=0,skipBonusOnce=false;
+function bonusPanel(){
+ let p=$('thinkBonusPanel');if(p)return p;
+ p=document.createElement('section');p.id='thinkBonusPanel';p.className='panel';
+ p.innerHTML='<div style="font-size:12px;font-weight:900;letter-spacing:2px;color:#d97724">SURPRISE CHALLENGE · THINKS MORE</div><h2 id="bonusCategory"></h2><div id="bonusInstruction" style="font-size:17px;font-weight:bold;margin:12px"></div><div id="bonusClue" style="font-size:clamp(19px,2.8vw,27px);line-height:1.4;margin:16px"></div><div id="bonusCountdown" style="font-size:70px;font-weight:900;color:#d97724"></div><div id="bonusStatus" style="font-weight:bold;margin:12px"></div><div id="bonusControls" style="display:none;gap:8px;justify-content:center"><button id="bonusCorrect" class="good">CORRECT</button><button id="bonusIncorrect" class="bad">INCORRECT</button></div>';
+ $('board').insertAdjacentElement('afterend',p);
+ $('bonusCorrect').onclick=()=>finishBonus(true);$('bonusIncorrect').onclick=()=>finishBonus(false);
+ return p;
+}
+function beginBonus(q){
+ stopListening();clearResponseTimer();bonusQ=q;bonusTeam=active;bonusWager=0;phase='think_bonus_wager';
+ $('panel').classList.add('hidden');$('backupControls').classList.add('hidden');$('board').style.display='none';$('teamResponses').style.display='none';
+ const p=bonusPanel();p.style.display='block';$('bonusCategory').textContent='THINK HARD! · '+q.category;
+ $('bonusInstruction').textContent=teams[active]+', wager up to '+scores[active]+' points.';
+ $('bonusClue').textContent='';$('bonusCountdown').textContent='';$('bonusStatus').textContent='Waiting for wager…';$('bonusControls').style.display='none';
+ say('The clue is… Think Hard! The category is '+q.category+'. How much do you wish to wager?',()=>{if(phase==='think_bonus_wager'&&voiceOn)startListening();});
+}
+function bonusWagerValue(t){
+ t=t.toLowerCase();if(/all in|everything|maximum|max it/.test(t))return scores[bonusTeam];
+ const d=t.match(/\b\d+\b/);if(d)return Number(d[0]);
+ const w={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100};
+ const a=t.match(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)\b/g);
+ if(!a)return null;let total=0,group=0;for(const x of a){const n=w[x];if(n===100)group=Math.max(1,group)*100;else if(n>=20)group+=n;else group+=n;}return total+group;
+}
+function takeBonusWager(t){
+ if(phase!=='think_bonus_wager')return;const n=bonusWagerValue(t);
+ if(n===null||n<0||n>scores[bonusTeam]){say('Please give a valid wager up to '+scores[bonusTeam]+' points.',()=>{if(phase==='think_bonus_wager'&&voiceOn)startListening();});return;}
+ bonusWager=Math.floor(n);stopListening();const d=thinkBonusBank[bonusQ.category];
+ phase='think_bonus_reveal';$('bonusInstruction').textContent=teams[bonusTeam]+' wagers '+bonusWager+' points.';
+ $('bonusClue').textContent=d.clue;$('bonusStatus').textContent='';$('bonusControls').style.display='none';
+ say('Your wager is '+bonusWager+' points. Here is your Think Hard clue. '+d.clue+'. You have 15 seconds now.',()=>{if(phase==='think_bonus_reveal')runBonusTimer();});
+}
+function runBonusTimer(){
+ phase='think_bonus_countdown';bonusEnd=Date.now()+15000;
+ const tick=()=>{const n=Math.max(0,Math.ceil((bonusEnd-Date.now())/1000));$('bonusCountdown').textContent=n;if(!n){clearInterval(bonusTimer);bonusTimer=null;stopListening();playBuzzer();phase='think_bonus_answer_prompt';say('Pencils down. What is the question?',()=>{if(phase!=='think_bonus_answer_prompt')return;phase='think_bonus_answer';$('bonusInstruction').textContent='What is the question?';$('bonusStatus').textContent=teams[bonusTeam]+' — answer now.';$('bonusControls').style.display='flex';if(voiceOn)startListening();});}};
+ tick();bonusTimer=setInterval(tick,200);
+}
+function finishBonus(ok){
+ if(!['think_bonus_answer','think_bonus_answer_prompt'].includes(phase))return;
+ stopListening();if(bonusTimer){clearInterval(bonusTimer);bonusTimer=null;}
+ phase='think_bonus_result';scores[bonusTeam]=Math.max(0,scores[bonusTeam]+(ok?bonusWager:-bonusWager));updateScores();
+ const d=thinkBonusBank[bonusQ.category];$('bonusCountdown').textContent='';
+ $('bonusControls').style.display='none';$('bonusInstruction').textContent=ok?'CORRECT! +'+bonusWager+' POINTS':'INCORRECT. −'+bonusWager+' POINTS';
+ $('bonusStatus').textContent='Correct answer: '+d.answer+'. '+teams[bonusTeam]+' now has '+scores[bonusTeam]+' points.';
+ say((ok?'Correct! You earn ':'Incorrect. You lose ')+bonusWager+' points. The answer is '+d.answer+'.',()=>setTimeout(()=>{if(phase!=='think_bonus_result')return;$('thinkBonusPanel').style.display='none';$('board').style.display='';$('teamResponses').style.display='';const q=bonusQ;bonusQ=null;skipBonusOnce=true;phase='board';openClue(q);},900));
+}
+function bonusAnswerMatches(t){
+ const d=thinkBonusBank[bonusQ.category],h=normalizeAnswer(t);
+ return [d.answer,...d.alts].some(a=>{const e=normalizeAnswer(a);return h===e||(' '+h+' ').includes(' '+e+' ')||(' '+e+' ').includes(' '+h+' ');});
+}
+
 function openClue(q){
- if(!q||q.used)return;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
+ if(!q||q.used)return;if(!skipBonusOnce&&Math.random()<1/6&&thinkBonusBank[q.category]){beginBonus(q);return;}skipBonusOnce=false;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
  pendingDecision=null;pendingTranscript='';
  $('teamResponse0').textContent=teams[0]+': —';$('teamResponse1').textContent=teams[1]+': —';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
@@ -608,6 +668,8 @@ function chooseVoice(transcript){
   }else if(transcript.trim()){
    $('globalStatus').textContent='Building selection: '+boardCommandBuffer+' — say category and point value.';
   }
+ }else if(phase==='think_bonus_wager'){if(transcript.trim())takeBonusWager(transcript);
+ }else if(phase==='think_bonus_answer'){if(transcript.trim()){const ok=bonusAnswerMatches(transcript);$('bonusStatus').textContent=teams[bonusTeam]+' answered: '+transcript;finishBonus(ok);}
  }else if(phase==='think_answer'){
   if(transcript.trim())receiveFinalAnswer(transcript);
  }else if(phase==='think_wager_amount'){
@@ -645,7 +707,7 @@ async function startListening(){
   rec.canceled=(sender,event)=>{const reason=event.errorDetails||event.reason||'Recognition stopped';console.warn('Azure Speech canceled:',reason);if(voiceOn)mic(false,'Azure Speech: '+String(reason).slice(0,140));};
   rec.sessionStopped=()=>{
    listening=false;
-   const listenPhases=['coin','board','student_answer','await_turn','think_answer','think_wager_amount'];
+   const listenPhases=['coin','board','student_answer','await_turn','think_answer','think_wager_amount','think_bonus_wager','think_bonus_answer'];
    if(voiceOn&&!recognitionBlocked&&listenPhases.includes(phase))setTimeout(()=>{
     if(voiceOn&&!listening&&listenPhases.includes(phase))startListening();
    },350);

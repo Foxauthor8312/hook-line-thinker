@@ -59,7 +59,7 @@ const API='https://ndow-calendar-server.onrender.com/api/game-sessions';
 const categories=['Knot Tying','Fish Species','Tackle Equipment','Terminal Tackle','Baits & Lures','Water Safety'];
 let session=null,token='',lastEvent=0,pollTimer=null,selectedCategory=categories[0],busy=false;
 const $=id=>document.getElementById(id);
-async function request(path,options={}){const response=await fetch(API+path,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Request failed.');return data;}
+async function request(path,options={}){const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),20000);try{const response=await fetch(API+path,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Request failed (HTTP '+response.status+').');return data;}catch(error){if(error.name==='AbortError')throw new Error('The game server did not respond within 20 seconds. Check the Render service.');throw error;}finally{clearTimeout(timeout);}}
 function status(message,good=false){$('controlStatus').textContent=message;$('controlStatus').className='status'+(good?' good':'');}
 async function send(action,extra={}){if(!session||busy)return;busy=true;try{await request('/'+session.id+'/commands',{method:'POST',body:JSON.stringify({event_type:'remote_action',payload:{action,...extra}})});status('Sent: '+action.replaceAll('_',' '),true);}catch(e){status(e.message);}finally{busy=false;}}
 let managedQuestions=[],editingQuestionId=null;

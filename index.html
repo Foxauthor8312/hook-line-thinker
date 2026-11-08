@@ -735,7 +735,7 @@ $('goBoard').onclick=()=>{
  say(teams[active]+' goes first. Make a selection.',()=>{
   if(voiceOn&&phase==='board'){
    if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — say a category and point value.';
-   startListening();scheduleBoardReminder();
+   startListening();scheduleBoardReminder();scheduleBoardReminder();
   }
  });
 };

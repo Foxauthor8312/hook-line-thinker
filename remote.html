@@ -40,9 +40,9 @@ h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#64748b;margin:0 0 
  </section>
  <section class="card"><h2>GAME NAVIGATION</h2><div class="grid3"><button id="heads" class="smallbtn">HEADS</button><button id="tails" class="smallbtn">TAILS</button><button id="flip" class="orange smallbtn">FLIP COIN</button></div><button id="goBoard" class="full">SHOW GAME BOARD</button></section>
  <section class="card"><h2>SELECT A CLUE</h2><p class="hint">Choose a category, then a point value.</p><div class="categories" id="categories"></div><div class="values" id="values"></div><button id="openQuestionEditor" class="full light">EDIT QUESTION</button></section>
- <section class="card"><h2>CLUE / ANSWER CONTROLS</h2><div class="grid2"><button id="acceptable" class="green">ACCEPTABLE / CONTINUE</button><button id="incorrect" class="red">INCORRECT</button><button id="confirm" class="orange">OK / CONTINUE</button><button id="reveal" class="light">REVEAL ANSWER</button></div><button id="next" class="full light">BACK TO BOARD / NEXT TURN</button></section>
+ <section class="card"><h2>CLUE / ANSWER CONTROLS</h2><div class="grid2"><button id="acceptable" class="green">ACCEPTABLE / CONTINUE</button><button id="incorrect" class="red">INCORRECT</button><button id="confirm" class="orange">OK / CONTINUE</button><button id="reveal" class="light">REVEAL ANSWER</button></div><button id="disqualify" class="full red" disabled>DISQUALIFY CLUE</button><button id="next" class="full light">BACK TO BOARD / NEXT TURN</button></section>
  <section class="card"><h2>SCORE ADJUSTMENT</h2><p class="hint">Use only for a manual scoring correction.</p><div class="scoregrid"><div class="scorebox">TEAM 1<strong id="score1">±</strong><div class="grid2"><button class="smallbtn light" data-team="0" data-delta="-10">−10</button><button class="smallbtn" data-team="0" data-delta="10">+10</button></div></div><div class="scorebox">TEAM 2<strong id="score2">±</strong><div class="grid2"><button class="smallbtn light" data-team="1" data-delta="-10">−10</button><button class="smallbtn" data-team="1" data-delta="10">+10</button></div></div></div></section>
- <section class="card"><h2>VOICE CONTROL</h2><p class="hint">Control the classroom microphone from this tablet.</p><div class="grid2"><button id="voiceOn" class="orange">START VOICE</button><button id="pause" class="light">PAUSE VOICE</button></div><div style="margin-top:10px"><button id="reset" class="red full">RESET GAME</button></div></section>
+ <section class="card"><h2>VOICE CONTROL</h2><p class="hint">Start or pause instructor microphone input. Toggle spoken game announcements separately.</p><div class="grid2"><button id="voiceOn" class="orange">START MIC</button><button id="pause" class="light">GAME VOICE ON/OFF</button></div><div style="margin-top:10px"><button id="reset" class="red full">RESET GAME</button></div></section>
 </div>
 <div id="answerOverlay" class="answer-overlay" role="dialog" aria-modal="true" aria-labelledby="hostAnswerTitle">
  <section class="answer-popup">
@@ -100,15 +100,16 @@ async function poll(){if(!session)return;try{const d=await request('/'+session.i
   $('hostAnswerText').textContent=e.payload.answer||'';
   const alternatives=e.payload.alternatives||[];
   $('hostAlternatives').textContent=alternatives.length?'Also accepted: '+alternatives.join(', '):'';
-  $('answerOverlay').classList.add('show');
+  $('answerOverlay').classList.add('show');$('disqualify').disabled=false;
  }
+ if(e.event_type==='final_round_started'||e.event_type==='game_reset')$('disqualify').disabled=true;
  if(e.event_type==='remote_action'&&e.payload?.action==='score_adjust'){}
 }}catch(e){status(e.message);}}
 $('closeHostAnswer').onclick=()=> $('answerOverlay').classList.remove('show');
 $('saveQuestion').onclick=saveQuestion;$('openQuestionEditor').onclick=()=>{$('questionEditor').classList.add('show');loadManagedQuestions();};$('closeQuestionEditor').onclick=()=>{$('questionEditor').classList.remove('show');};$('editCategory').onchange=loadSelectedQuestion;$('editValue').onchange=loadSelectedQuestion;
 $('connect').onclick=connect;$('pairCode').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('pairCode').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
 $('heads').onclick=()=>send('heads');$('tails').onclick=()=>send('tails');$('flip').onclick=()=>send('flip_coin');$('goBoard').onclick=()=>send('go_board');
-$('acceptable').onclick=()=>send('acceptable');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('next').onclick=()=>send('next_clue');$('voiceOn').onclick=()=>send('voice_on');$('pause').onclick=()=>send('pause_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};
+$('acceptable').onclick=()=>send('acceptable');$('incorrect').onclick=()=>send('incorrect');$('confirm').onclick=()=>send('confirm');$('reveal').onclick=()=>send('reveal');$('disqualify').onclick=()=>send('disqualify');$('next').onclick=()=>send('next_clue');$('voiceOn').onclick=()=>send('voice_on');$('pause').onclick=()=>send('toggle_game_voice');$('reset').onclick=()=>{if(confirm('Reset the game and all scores?'))send('reset');};
 document.querySelectorAll('[data-team]').forEach(b=>b.onclick=()=>send('score_adjust',{team:Number(b.dataset.team),delta:Number(b.dataset.delta)}));
 $('disconnect').onclick=()=>{if(pollTimer)clearInterval(pollTimer);session=null;token='';lastEvent=0;$('controls').style.display='none';$('join').style.display='block';$('pairCode').value='';$('joinStatus').textContent='Disconnected. Enter a new laptop code to reconnect.';};
 </script></body></html>

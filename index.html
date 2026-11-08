@@ -44,10 +44,11 @@
 #backupControls.hidden{display:none}
 #backupControls button{padding:4px 10px;font-size:11px;min-height:25px}
 #game .scores{margin-top:8px}
+.game-countdown{position:fixed;left:12px;top:48%;z-index:800;background:#0d2235ef;border:1px solid #589FD6;border-radius:10px;padding:8px 12px;text-align:center;min-width:76px;box-shadow:0 5px 18px #0006;pointer-events:none}.game-countdown small{display:block;font-size:9px;letter-spacing:1px;color:#c4d5e0}.game-countdown strong{display:block;font-size:26px;color:#ffd18b;font-variant-numeric:tabular-nums}.finn-host{position:fixed;right:12px;bottom:12px;z-index:850;display:flex;align-items:flex-end;gap:7px;max-width:min(310px,30vw);pointer-events:none;animation:finnEnter .22s ease-out}.finn-host.hidden{display:none!important}.finn-host img{width:clamp(68px,9vw,112px);max-height:150px;object-fit:contain;filter:drop-shadow(0 3px 5px #0008)}.finn-host-bubble{max-width:205px;padding:10px 12px;border-radius:12px 12px 12px 3px;background:#f8fafc;color:#19304B;border:1px solid #589FD6;box-shadow:0 5px 18px #0007;font-size:clamp(11px,1.1vw,14px);font-weight:700;line-height:1.35}.finn-host-bubble:empty{display:none}@keyframes finnEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}@media(max-width:600px){.finn-host{max-width:210px}.finn-host img{width:68px;max-height:95px}.finn-host-bubble{max-width:135px;font-size:11px}.game-countdown{top:42%;left:5px;min-width:58px;padding:6px}.game-countdown strong{font-size:21px}}
 </style></head><body><header><h1>HOOK, LINE &amp; THINKER</h1><div class="sub">THE FISHING KNOWLEDGE CHALLENGE</div></header><main>
-<div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div id="classroomStatusStack"><div id="tabletConnectionNote" aria-live="polite">Tablet Connected</div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div><div class="mic" id="mic"><span class="mic-symbol" aria-label="Microphone"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg></span><span class="dot"></span><span id="micLabel">Voice off</span><button id="voiceToggle">VOICE ON</button></div></div></div>
+<div class="topbar" id="globalVoiceBar"><div class="status" id="globalStatus">Voice controls are available throughout the game.</div><div id="classroomStatusStack"><div id="tabletConnectionNote" aria-live="polite">Tablet Connected</div><div id="gameMicMeter" title="Live microphone input level"><span class="meter-label">INSTRUCTOR MIC</span><span id="gameMicBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="gameMicState">OFF</span></div><div class="mic" id="mic"><span class="mic-symbol" aria-label="Microphone"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg></span><span class="dot"></span><span id="micLabel">Voice off</span><button id="voiceToggle">MIC ON</button></div></div></div>
 
-<section id="preflight" class="screen"><h2>PRE-FLIGHT CHECKLIST</h2><p>Make sure everything is ready before bringing the teams in.</p><div class="voice-picker"><label for="speechVoiceSelect">HOST ANNOUNCEMENT VOICE</label><select id="speechVoiceSelect"><option value="">System default</option></select><button type="button" id="testSpeechVoice">PLAY VOICE SAMPLE</button><p class="small">Choose the voice the class will hear during game announcements.</p></div><div class="preflight-list"><div class="preflight-item"><span class="preflight-mark" id="audioCheckMark">1</span><div><b>Host announcements</b><p id="audioCheckText">Select a voice and play the sample to confirm classroom audio.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="micCheckMark">2</span><div><b>Microphone input</b><p id="micCheckText">Turn on voice controls above and speak. The MIC indicator should respond to your voice.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="voiceCheckMark">3</span><div><b>Voice commands</b><p id="voiceCheckText">Turn Voice ON above and confirm the listening indicator appears.</p></div></div><div class="preflight-item"><span class="preflight-mark">4</span><div><b>Display and controls</b><p>Confirm the game is displayed on the classroom screen and mouse controls are available.</p></div></div></div><p class="small">Laptop/tablet remote pairing will be added to this checklist when that feature is implemented.</p><div class="actions"><button class="primary" id="preflightContinue">CONTINUE TO TEAM SETUP</button></div></section>
+<section id="preflight" class="screen"><h2>PRE-FLIGHT CHECKLIST</h2><p>Make sure everything is ready before bringing the teams in.</p><div class="voice-picker"><label for="speechVoiceSelect">HOST ANNOUNCEMENT VOICE</label><select id="speechVoiceSelect"><option value="">System default</option></select><button type="button" id="testSpeechVoice">PLAY VOICE SAMPLE</button><p class="small">Choose the voice the class will hear during game announcements.</p></div><div class="preflight-list"><div class="preflight-item"><span class="preflight-mark" id="audioCheckMark">1</span><div><b>Host announcements</b><p id="audioCheckText">Select a voice and play the sample to confirm classroom audio.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="micCheckMark">2</span><div><b>Microphone input</b><p id="micCheckText">Set your headset as the computer's default microphone, then turn on MIC and speak. The instructor microphone indicator should respond to your voice.</p></div></div><div class="preflight-item"><span class="preflight-mark" id="voiceCheckMark">3</span><div><b>Voice commands</b><p id="voiceCheckText">Turn Voice ON above and confirm the listening indicator appears.</p></div></div><div class="preflight-item"><span class="preflight-mark">4</span><div><b>Display and controls</b><p>Confirm the game is displayed on the classroom screen and mouse controls are available.</p></div></div></div><p class="small">Laptop/tablet remote pairing will be added to this checklist when that feature is implemented.</p><div class="actions"><button class="primary" id="preflightContinue">CONTINUE TO TEAM SETUP</button></div></section>
 <section id="setup" class="screen hidden"><h2>Welcome, teams!</h2><p>Enter your team names to get started.</p><input id="team1Input" value="Team 1"><input id="team2Input" value="Team 2"><div class="actions"><button class="primary" id="startBtn">REVIEW THE RULES</button></div><div id="rulesPanel" class="panel hidden" style="position:static;transform:none;margin:18px auto 0;max-height:none"><h2>HOW TO PLAY</h2><p><b>1. PICK A CLUE</b><br>Teams take turns selecting a category and point value. A coin toss determines who starts.</p><p><b>2. THINK IT THROUGH</b><br>Listen to the clue. Teams may discuss before the team leader responds.</p><p><b>3. ANSWER IN THE FORM OF A QUESTION</b><br>The team has <b>5 seconds</b> to give its answer after the clue is presented. An audible buzzer signals when time expires. If the first team times out, the other team gets one 5-second chance.</p><p><b>4. SCORING</b><br>Correct answers earn the displayed points. Incorrect answers give the other team a chance. If neither team answers within the time limit, the answer is revealed and play passes to the opposing team.</p><p><b>5. KEEP THE GAME MOVING</b><br>The team that answers correctly selects next. If neither team is correct, play passes to the opposing team.</p><p><b>6. SPECIAL CHALLENGES</b><br><b>THINKS MORE:</b> A surprise wager clue. Correct adds the wager; incorrect deducts it. No steal opportunity.<br><b>THINKS HARDER:</b> After the board is cleared, both teams secretly wager points and answer the same final question independently. Each team has <b>15 seconds</b> to respond. An audible buzzer signals when time expires. Correct answers add the wager; incorrect answers subtract it.</p><p class="small">The team leader gives the official answer. Wagers cannot exceed the team's current score. The host's ruling is final.</p><h2 style="color:#19304B">THINK IT THROUGH. WORK TOGETHER. REEL IN THE WIN!</h2><div class="actions"><button class="primary" id="letsPlayBtn">LET'S PLAY!</button></div></div><p class="small">Chrome desktop is recommended for voice commands. Mouse controls are always available.</p></section>
 <section id="coin" class="screen hidden coin-screen">
  <h2>Who goes first?</h2>
@@ -71,25 +72,26 @@
 </div>
 <div class="scores"><div class="team" id="teamBox0"><input id="teamName0" value="Team 1"><div class="score" id="score0">0</div></div><div class="reel">🎣</div><div class="team" id="teamBox1"><input id="teamName1" value="Team 2"><div class="score" id="score1">0</div></div></div>
 <div id="backupControls" class="compact-controls hidden"><button id="correct" class="good hidden">OVERRIDE: CORRECT</button><button id="incorrect" class="bad hidden">OVERRIDE: INCORRECT</button><button id="confirmDecision" class="primary hidden">OK — CONTINUE</button><button id="reveal" class="primary hidden">REVEAL ANSWER</button></div><section id="panel" class="panel hidden"><h2 id="heading"></h2><div id="clue" class="clue"></div><div id="answer" class="answer hidden"></div><div id="note" class="note hidden"></div><p class="small" id="responseText"></p></section>
-<div class="actions"><button id="pauseVoice">PAUSE VOICE</button><button id="reset">RESET GAME</button></div></section></main>
+<div class="actions"><button id="pauseVoice">GAME VOICE: ON</button><button id="reset">RESET GAME</button></div></section></main>
+<div id="gameCountdown" class="game-countdown hidden" aria-live="polite"><small id="gameCountdownLabel">TEAM DISCUSSION</small><strong id="gameCountdownValue">30</strong></div>
+<div id="finnHost" class="finn-host hidden" aria-live="polite"><img id="finnHostImage" src="assets/finn/finn-talking.png" alt="Finn the fishing mascot"><div id="finnHostText" class="finn-host-bubble"></div></div>
 <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
 <script>
 let questions=[]
 const $=id=>document.getElementById(id);
 let teams=['Team 1','Team 2'],scores=[0,0],active=0,current=null,called=null;
-let voiceOn=false,rec=null,listening=false,phase='setup',recognitionBlocked=false,busyFlip=false,face='heads';
+let voiceOn=false,gameVoiceEnabled=true,rec=null,listening=false,phase='setup',recognitionBlocked=false,busyFlip=false,face='heads';
 let boardCommandBuffer='',boardCommandTime=0;
+let thinkHardQuestion=null,thinkHardUsed=false,clueOwner=0,boardReminderTimer=null,gameClockInterval=null,gameClockDeadline=0;
+function assignThinkHardPosition(){const eligible=questions.filter(q=>thinkBonusBank[q.category]&&!q.used);thinkHardQuestion=eligible.length?eligible[Math.floor(Math.random()*eligible.length)]:null;thinkHardUsed=false;}
+function clearBoardReminder(){if(boardReminderTimer){clearTimeout(boardReminderTimer);boardReminderTimer=null;}}
+function scheduleBoardReminder(){clearBoardReminder();if(phase!=='board'||!voiceOn)return;boardReminderTimer=setTimeout(()=>{boardReminderTimer=null;if(phase!=='board'||!voiceOn)return;const m='Team '+teams[active]+', you have the control. Please select another category and number. I am waiting on your selection.';$('turnStatus').textContent=m;$('responseText').textContent=m;say(m,null,'winking');},25000);}
+function clearGameClock(){if(gameClockInterval){clearInterval(gameClockInterval);gameClockInterval=null;}gameClockDeadline=0;const b=$('gameCountdown');if(b)b.classList.add('hidden');}
+function runGameClock(seconds,label,onDone,warningAt=0,onWarning=null){clearGameClock();gameClockDeadline=Date.now()+seconds*1000;const b=$('gameCountdown'),n=$('gameCountdownLabel'),v=$('gameCountdownValue');if(b){b.classList.remove('hidden');n.textContent=label;}let warned=false;const tick=()=>{const left=Math.max(0,Math.ceil((gameClockDeadline-Date.now())/1000));if(v)v.textContent=String(left).padStart(2,'0');if(!warned&&warningAt&&left<=warningAt){warned=true;if(onWarning)onWarning();}if(left<=0){clearGameClock();if(onDone)onDone();}};tick();gameClockInterval=setInterval(tick,100);}
 function screen(id){['preflight','setup','coin','game'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
 let selectedSpeechVoice=null;
-function say(t,onend){if(!('speechSynthesis'in window)){if(onend)setTimeout(onend,1200);return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;if(onend)u.onend=onend;speechSynthesis.speak(u);}
-function speakThenListen(t){
- stopListening();
- if(!('speechSynthesis'in window)){if(voiceOn)startListening();return;}
- speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(t);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;
- let resumed=false;const resume=()=>{if(resumed)return;resumed=true;if(voiceOn&&phase==='coin')setTimeout(startListening,350);};
- u.onend=resume;u.onerror=resume;speechSynthesis.speak(u);
-}
+function say(t,onend,expression){const text=String(t||''),host=$('finnHost'),img=$('finnHostImage'),bubble=$('finnHostText');if(gameVoiceEnabled&&expression&&host&&img&&bubble){const mood=expression;img.src='assets/finn/finn-'+mood+'.png';bubble.textContent=text;host.classList.remove('hidden');}let doneOnce=false;const done=()=>{if(doneOnce)return;doneOnce=true;if(host)host.classList.add('hidden');if(onend)onend();};if(!gameVoiceEnabled){done();return;}if(!('speechSynthesis'in window)){setTimeout(done,250);return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(selectedSpeechVoice)u.voice=selectedSpeechVoice;u.rate=.96;u.pitch=1;u.onend=done;u.onerror=done;speechSynthesis.speak(u);}
+function speakThenListen(t){stopListening();say(t,()=>{if(voiceOn&&phase==='coin')setTimeout(startListening,350);});}
 function populateSpeechVoices(){
  if(!('speechSynthesis'in window))return;
  const select=$('speechVoiceSelect');if(!select)return;
@@ -126,9 +128,7 @@ function draw(){
 }
 let attempts=0, lastScoringTeam=0;
 let responseTimer=null;
-function clearResponseTimer(){
- if(responseTimer){clearTimeout(responseTimer);responseTimer=null;}
-}
+function clearResponseTimer(){if(responseTimer){clearTimeout(responseTimer);responseTimer=null;}clearGameClock();}
 function playBuzzer(){
  const C=window.AudioContext||window.webkitAudioContext;
  if(!C)return;
@@ -148,30 +148,10 @@ function playBuzzer(){
   setTimeout(()=>ctx.close(),900);
  }catch(error){console.warn('Buzzer audio unavailable:',error);}
 }
-function startResponseTimer(){
- clearResponseTimer();
- if(phase!=='student_answer'||!current)return;
- responseTimer=setTimeout(()=>{
-  responseTimer=null;
-  if(phase!=='student_answer'||!current)return;
-  stopListening();playBuzzer();
-  if(attempts===0){
-   attempts=1;active=1-active;updateScores();
-   $('teamResponse'+active).textContent=teams[active]+': —';
-   $('turnStatus').textContent=teams[active]+' gets 30 seconds to answer.';
-   $('responseText').textContent='Time expired. '+teams[active]+' gets one chance to answer.';
-   if($('globalStatus'))$('globalStatus').textContent='Time expired — '+teams[active]+' has 30 seconds.';
-   say('Time is up. '+teams[active]+', you have thirty seconds to answer.',()=>{
-    if(voiceOn&&phase==='student_answer'&&current){startListening();startResponseTimer();}
-   });
-  }else{
-   active=1-active;updateScores();
-   $('responseText').textContent='Time is up. Neither team answered. The correct answer will be revealed.';
-   if($('globalStatus'))$('globalStatus').textContent='Time expired — revealing the answer.';
-   reveal(false);
-  }
- },30000);
-}
+function offerSteal(){if(!current||attempts>0)return;attempts=1;active=1-clueOwner;updateScores();$('teamResponse'+active).textContent=teams[active]+': —';$('turnStatus').textContent=teams[active]+' has a steal opportunity.';$('responseText').textContent='The opposing team has 30 seconds to steal.';phase='student_answer_prompt';stopListening();const p='Incorrect answer. Play moves to the opposing team. Team '+teams[active]+', you can steal the game by correctly answering the clue. You have 30 seconds to give us your response in the form of What is...? Starting NOW!';say(p,()=>{if(!current||phase!=='student_answer_prompt')return;phase='student_answer';if(voiceOn)startListening();startResponseTimer(30);},'surprised');}
+function startResponseTimer(seconds=20){clearResponseTimer();if(phase!=='student_answer'||!current)return;runGameClock(seconds,attempts?'STEAL RESPONSE':'YOUR RESPONSE',()=>{if(phase!=='student_answer'||!current)return;stopListening();playBuzzer();if(attempts===0)offerSteal();else{active=clueOwner;updateScores();$('responseText').textContent='Time is up. Neither team answered correctly.';reveal(false);}},0);}
+function startDiscussionTimer(){if(!current)return;phase='discussion';runGameClock(30,'TEAM DISCUSSION',()=>{if(!current||phase!=='discussion')return;playBuzzer();phase='student_answer_prompt';say('Time is up. Tell me your response...',()=>{if(!current||phase!=='student_answer_prompt')return;phase='student_answer';if(voiceOn)startListening();startResponseTimer(20);},'talking');},10,()=>say('10 seconds remaining.',null,'surprised'));}
+function beginClueFlow(){if(!current)return;phase='clue_reading';say(current.clue,()=>{if(!current||phase!=='clue_reading')return;phase='comprehension';runGameClock(5,'READ THE CLUE',()=>{if(!current||phase!=='comprehension')return;phase='discussion_prompt';say('You have 30 seconds to give us the response before it moves to the other team.',()=>{if(!current||phase!=='discussion_prompt')return;startDiscussionTimer();},'winking');});});}
 
 const thinkBonusBank={
 'Knot Tying':{clue:'Which knot creates a fixed loop at the hook or lure so it can move more freely?',answer:'Non-slip loop knot',alts:['Kreh loop','non slip loop']},
@@ -191,7 +171,7 @@ function bonusPanel(){
  return p;
 }
 function beginBonus(q){
- stopListening();clearResponseTimer();bonusQ=q;bonusTeam=active;bonusWager=0;phase='think_bonus_wager';
+ stopListening();clearResponseTimer();q.used=true;thinkHardUsed=true;draw();bonusQ=q;bonusTeam=active;bonusWager=0;phase='think_bonus_wager';
  $('panel').classList.add('hidden');$('backupControls').classList.add('hidden');$('board').style.display='none';$('teamResponses').style.display='none';
  const p=bonusPanel();p.style.display='block';$('bonusCategory').textContent='THINK HARD! · '+q.category;
  $('bonusInstruction').textContent=teams[active]+', wager up to '+scores[active]+' points.';
@@ -225,7 +205,7 @@ function finishBonus(ok){
  const d=thinkBonusBank[bonusQ.category];$('bonusCountdown').textContent='';
  $('bonusControls').style.display='none';$('bonusInstruction').textContent=ok?'CORRECT! +'+bonusWager+' POINTS':'INCORRECT. −'+bonusWager+' POINTS';
  $('bonusStatus').textContent='Correct answer: '+d.answer+'. '+teams[bonusTeam]+' now has '+scores[bonusTeam]+' points.';
- say((ok?'Correct! You earn ':'Incorrect. You lose ')+bonusWager+' points. The answer is '+d.answer+'.',()=>setTimeout(()=>{if(phase!=='think_bonus_result')return;$('thinkBonusPanel').style.display='none';$('board').style.display='';$('teamResponses').style.display='';const q=bonusQ;bonusQ=null;skipBonusOnce=true;phase='board';openClue(q);},900));
+ say((ok?'Correct! You earn ':'Incorrect. You lose ')+bonusWager+' points. The answer is '+d.answer+'.',()=>setTimeout(()=>{if(phase!=='think_bonus_result')return;$('thinkBonusPanel').style.display='none';$('board').style.display='';$('teamResponses').style.display='';bonusQ=null;phase='board';draw();if(questions.length&&questions.every(q=>q.used)){beginThinkHarder();return;}const p=teams[active]+', choose another category and number.';$('turnStatus').textContent=p;$('responseText').textContent=p;say(p,()=>{if(voiceOn&&phase==='board')startListening();},'winking');scheduleBoardReminder();},900));
 }
 function bonusAnswerMatches(t){
  const d=thinkBonusBank[bonusQ.category],h=normalizeAnswer(t);
@@ -233,7 +213,7 @@ function bonusAnswerMatches(t){
 }
 
 function openClue(q){
- if(!q||q.used)return;if(!skipBonusOnce&&Math.random()<1/6&&thinkBonusBank[q.category]){beginBonus(q);return;}skipBonusOnce=false;current=q;q.used=true;attempts=0;lastScoringTeam=active;draw();phase='student_answer';
+ if(!q||q.used||phase!=='board')return;clearBoardReminder();stopListening();if(q===thinkHardQuestion&&!thinkHardUsed){q.used=true;thinkHardUsed=true;draw();const special=thinkBonusBank[q.category];publishHostAnswer({...q,answer:special.answer,alternatives:special.alts||[]});beginBonus(q);return;}current=q;q.used=true;attempts=0;clueOwner=active;lastScoringTeam=active;draw();phase='clue_reading';
  pendingDecision=null;pendingTranscript='';
  $('teamResponse0').textContent=teams[0]+': —';$('teamResponse1').textContent=teams[1]+': —';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
@@ -243,12 +223,7 @@ function openClue(q){
  $('backupControls').classList.remove('hidden');
  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');
  $('confirmDecision').classList.add('hidden');$('reveal').classList.add('hidden');
- $('turnStatus').textContent=teams[active]+' is answering.';
- $('responseText').textContent='The game is listening to '+teams[active]+'\'s answer. Host may override the decision if needed.';
- if($('globalStatus'))$('globalStatus').textContent='Listening for '+teams[active]+' — speak your answer.';
- publishHostAnswer(q);
- mic(false,'Listening for '+teams[active]+' answer');if(voiceOn)startListening();
- startResponseTimer();
+ $('turnStatus').textContent=teams[active]+' has selected the clue.';$('responseText').textContent='Listen to the clue. Team discussion begins after the five-second pause.';if($('globalStatus'))$('globalStatus').textContent='Clue selected by '+teams[active]+'.';publishHostAnswer(q);mic(false,'Waiting for clue and team discussion');beginClueFlow();
 }
 let pendingDecision=null,pendingTranscript='';
 function normalizeAnswer(value){
@@ -340,7 +315,7 @@ function reveal(wasCorrect){
  say(wasCorrect
   ?'Correct! The answer is '+current.answer+'.'
   :'The correct response is '+current.answer+'.',
-  ()=>setTimeout(()=>{if(current&&phase==='answer_revealed')finishClue();},350));
+  ()=>setTimeout(()=>{if(current&&phase==='answer_revealed')finishClue();},350),wasCorrect?'excited':'surprised');
 }
 function overrideDecision(ok){
  if(!current||phase!=='decision')return;
@@ -348,41 +323,8 @@ function overrideDecision(ok){
  $('responseText').textContent='Host override: '+(pendingDecision?'CORRECT':'INCORRECT')+'. Tap OK to continue.';
  say(pendingDecision?'Marked correct.':'Marked incorrect.');
 }
-function confirmDecision(){
- if(!current||phase!=='decision'||pendingDecision===null)return;
- clearResponseTimer();stopListening();
- if(pendingDecision){
-  scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal(true);
- }else if(attempts===0){
-  attempts=1;active=1-active;updateScores();phase='student_answer';
-  pendingDecision=null;pendingTranscript='';
-  $('teamResponse'+active).textContent=teams[active]+': —';
-  $('correct').classList.remove('hidden');$('incorrect').classList.remove('hidden');$('confirmDecision').classList.add('hidden');
-  $('turnStatus').textContent=teams[active]+' gets 30 seconds to answer.';
-  $('responseText').textContent='Incorrect. '+teams[active]+' gets the same clue. Waiting for a fresh response.';
-  if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — listening will restart now.';
-  say('Incorrect. '+teams[active]+', you have a chance to answer.',()=>{
-   // Give the receiving team a clean response window only after the handoff
-   // announcement has finished; never evaluate the previous team's transcript.
-   setTimeout(()=>{if(voiceOn&&phase==='student_answer'&&current)startListening();startResponseTimer();},350);
-  });
- }else{
-  active=1-active;updateScores();reveal(false);
- }
-}
-function finishClue(){
- if(!current||!['await_turn','answer_revealed'].includes(phase))return;
- const wasCorrect=current.wasCorrect!==false;
- stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
- $('reveal').textContent='REVEAL ANSWER';current=null;phase='board';
- if(questions.length&&questions.every(q=>q.used)){
-  beginThinkHarder();return;
- }
- const nextPrompt=wasCorrect?teams[active]+' selects next. Say “We’ll take, category, for, value.”':'Game goes to '+teams[active]+'. Choose a clue.';
- $('turnStatus').textContent=nextPrompt;$('responseText').textContent=nextPrompt;
- say(wasCorrect?teams[active]+', choose another clue.':'Game goes to '+teams[active]+'. Choose a clue.');
- if(voiceOn){mic(false,'Ready for board selection');startListening();}
-}
+function confirmDecision(){if(!current||phase!=='decision'||pendingDecision===null)return;clearResponseTimer();stopListening();if(pendingDecision){scores[active]+=Number(current.value);lastScoringTeam=active;updateScores();reveal(true);return;}if(attempts===0){offerSteal();return;}active=clueOwner;updateScores();reveal(false);}
+function finishClue(){if(!current||!['await_turn','answer_revealed'].includes(phase))return;clearResponseTimer();clearBoardReminder();const wasCorrect=current.wasCorrect!==false;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');$('reveal').textContent='REVEAL ANSWER';current=null;phase='board';draw();if(questions.length&&questions.every(q=>q.used)){beginThinkHarder();return;}const p=teams[active]+', you have control. Please select another category and number.';$('turnStatus').textContent=p;$('responseText').textContent=p;say(wasCorrect?teams[active]+', correct! You have control. Please select another category and number.':teams[active]+', you retain control. Please select another category and number.',()=>{if(voiceOn&&phase==='board'){mic(false,'Ready for '+teams[active]+' to select');startListening();}},'winking');scheduleBoardReminder();}
 
 // Think Harder final round — Veterans Memorial Park Pond regulations.
 let finalRoundTimer=null,finalRoundEnds=0,finalStage='',finalWagers=[0,0],finalAnswers=[false,false],finalActiveTeam=0;
@@ -412,7 +354,7 @@ function finalTimer(seconds,onDone){
  tick();finalRoundTimer=setInterval(tick,200);
 }
 function beginThinkHarder(){
- stopListening();clearResponseTimer();phase='think_wager';finalStage='wager';finalWagers=[0,0];finalAnswers=[false,false];finalActiveTeam=0;
+ stopListening();clearResponseTimer();clearBoardReminder();publishGameEvent('final_round_started',{});phase='think_wager';finalStage='wager';finalWagers=[0,0];finalAnswers=[false,false];finalActiveTeam=0;
  $('board').style.display='none';$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');
  const p=ensureFinalPanel();p.style.display='block';
  $('finalCategory').textContent='Our Think Harder category is… '+finalQuestion.category;
@@ -621,9 +563,7 @@ function flipCoin(){
      $('coinPrompt').textContent=outcome.toUpperCase()+'! '+teams[active]+' wins the toss and picks first.';
      $('goBoard').classList.add('hidden');
      busyFlip=false;
-     say(outcome+'. '+teams[active]+' wins the toss and picks first.');
-     // Automatically open the board after the toss result is announced.
-     setTimeout(()=>{if(phase==='coin'&&$('goBoard'))$('goBoard').click();},2200);
+     say(outcome+'. '+teams[active]+' wins the toss and picks first.',()=>{if(phase==='coin'&&$('goBoard'))$('goBoard').click();});
     }
     requestAnimationFrame(reveal);
    },750);
@@ -731,7 +671,7 @@ async function startGameMicMeter(){
   if(levelContext.state==='suspended')await levelContext.resume();
   levelAnalyser=levelContext.createAnalyser();levelAnalyser.fftSize=1024;
   levelContext.createMediaStreamSource(levelStream).connect(levelAnalyser);
-  if(state)state.textContent='READY';if($('micCheckMark')){$('micCheckMark').textContent='✓';$('micCheckMark').style.background='#42664b';}if($('micCheckText'))$('micCheckText').textContent='Microphone permission granted. Speak and watch the MIC indicator respond.';
+  if(state)state.textContent='CONNECTED';if($('micCheckMark')){$('micCheckMark').textContent='✓';$('micCheckMark').style.background='#42664b';}if($('micCheckText'))$('micCheckText').textContent='Microphone permission granted. Speak and watch the MIC indicator respond.';
   const data=new Uint8Array(levelAnalyser.fftSize);
   const paint=()=>{
    if(!levelAnalyser)return;
@@ -739,7 +679,7 @@ async function startGameMicMeter(){
    for(let i=0;i<data.length;i++){const v=(data[i]-128)/128;sum+=v*v;}
    const rms=Math.sqrt(sum/data.length),n=Math.min(12,Math.round(Math.min(1,rms*7)*12));
    bars.forEach((b,i)=>{b.style.height=(4+Math.max(0,n-i)*1.0)+'px';b.style.background=i<n?(i>9?'#f29647':i>6?'#589fd6':'#7a9e7f'):'#dbe3ec';});
-   if(state){state.textContent=n>0?'SIGNAL':'READY';state.style.color=n>0?'#527b57':'#64748b';}
+   if(state){state.textContent=n>0?'SIGNAL':'CONNECTED';state.style.color=n>0?'#527b57':'#64748b';}
    levelFrame=requestAnimationFrame(paint);
   };paint();
  }catch(err){if(state){state.textContent='MIC ERROR';state.title=(err.name||'Error')+': '+(err.message||'');state.style.color='#dc2626';}}
@@ -754,7 +694,7 @@ function stopGameMicMeter(){
 $('voiceToggle').onclick=()=>{
  initVoice();
  if(!window.SpeechSDK){mic(false,'Azure Speech SDK is not loaded. Refresh the classroom display.');return;}
- voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'VOICE OFF':'VOICE ON';
+ voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'MIC OFF':'MIC ON';
  if(voiceOn){startGameMicMeter();recognitionBlocked=false;startListening();}else{stopListening();stopGameMicMeter();mic(false,'Voice off');if($('voiceCheckMark')){$('voiceCheckMark').textContent='3';$('voiceCheckMark').style.background='#19304b';}}
 };
 $('speechVoiceSelect').onchange=()=>{const voices=speechSynthesis.getVoices();selectedSpeechVoice=voices.find(v=>v.voiceURI===$('speechVoiceSelect').value)||null;};
@@ -788,21 +728,21 @@ $('goBoard').onclick=()=>{
  $('turnStatus').textContent=teams[active]+' goes first. Make a selection.';
  if(!voiceOn){
   voiceOn=true;
-  $('voiceToggle').textContent='VOICE OFF';
+  $('voiceToggle').textContent='MIC OFF';
   startGameMicMeter();
   recognitionBlocked=false;
  }
  say(teams[active]+' goes first. Make a selection.',()=>{
   if(voiceOn&&phase==='board'){
    if($('globalStatus'))$('globalStatus').textContent='Ready for '+teams[active]+' — say a category and point value.';
-   startListening();
+   startListening();scheduleBoardReminder();scheduleBoardReminder();
   }
  });
 };
 $('reveal').onclick=finishClue;$('correct').onclick=()=>overrideDecision(true);$('incorrect').onclick=()=>overrideDecision(false);$('confirmDecision').onclick=confirmDecision;
 const backButton=$('back');if(backButton)backButton.onclick=()=>{stopListening();if(current)current.used=false;current=null;$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();if(voiceOn)startListening();};
-$('pauseVoice').onclick=()=>{voiceOn=false;stopListening();$('voiceToggle').textContent='VOICE ON';mic(false,'Voice paused');};
-$('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';draw();updateScores();if(voiceOn)startListening();};
+$('pauseVoice').onclick=()=>{gameVoiceEnabled=!gameVoiceEnabled;$('pauseVoice').textContent=gameVoiceEnabled?'GAME VOICE: ON':'GAME VOICE: OFF';if(!gameVoiceEnabled){if('speechSynthesis'in window)speechSynthesis.cancel();$('finnHost')?.classList.add('hidden');}};
+$('reset').onclick=()=>{if(!confirm('Reset all scores and used clues?'))return;clearResponseTimer();clearBoardReminder();scores=[0,0];active=0;questions.forEach(q=>q.used=false);current=null;stopListening();$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');phase='board';assignThinkHardPosition();draw();updateScores();publishGameEvent('game_reset',{});if(voiceOn)startListening();};
 $('teamName0').onchange=e=>{teams[0]=e.target.value||'Team 1';updateScores();};
 $('teamName1').onchange=e=>{teams[1]=e.target.value||'Team 2';updateScores();};
 
@@ -817,6 +757,7 @@ function showRemoteNotice(title,body){
  if(!box){box=document.createElement('div');box.id='remoteSessionNotice';box.style.cssText='position:fixed;right:16px;top:16px;z-index:10000;width:min(340px,calc(100vw - 32px));padding:16px;background:#f8fafc;color:#19304B;border:2px solid #589FD6;border-radius:12px;box-shadow:0 8px 30px #0008;font:14px Arial,sans-serif';document.body.appendChild(box);}
  box.innerHTML='<div style="font-weight:800;font-size:16px;margin-bottom:7px">'+title+'</div><div>'+body+'</div>';
 }
+function publishGameEvent(eventType,payload={}){if(!remoteSession||!remoteDeviceToken)return;remoteRequest('/'+remoteSession.id+'/commands',{method:'POST',body:JSON.stringify({event_type:eventType,payload})}).catch(error=>console.warn('Game event could not be sent:',error.message));}
 async function publishHostAnswer(q){
  if(!remoteSession||!remoteDeviceToken||!q)return;
  try{
@@ -830,6 +771,7 @@ async function remoteRequest(path,options={}){
  const response=await fetch(GAME_SESSION_API+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),...(remoteDeviceToken?{Authorization:'Bearer '+remoteDeviceToken}:{})}});
  const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||'Remote connection failed.');return data;
 }
+function disqualifyCurrentClue(){const regular=['clue_reading','comprehension','discussion_prompt','discussion','student_answer_prompt','student_answer','decision'].includes(phase),special=['think_bonus_wager','think_bonus_answer_prompt','think_bonus_answer'].includes(phase);if(!current&&!(!regular&&special&&bonusQ))return false;if(!regular&&!special)return false;clearResponseTimer();clearBoardReminder();stopListening();if(bonusTimer){clearInterval(bonusTimer);bonusTimer=null;}if('speechSynthesis'in window)speechSynthesis.cancel();if(current)current.used=true;if(bonusQ)bonusQ.used=true;current=null;bonusQ=null;phase='board';$('panel').classList.add('hidden');$('backupControls').classList.add('hidden');$('thinkBonusPanel')?.style&&($('thinkBonusPanel').style.display='none');$('board').style.display='';$('teamResponses').style.display='';draw();if(questions.length&&questions.every(q=>q.used)){beginThinkHarder();return true;}const m='The instructor has disqualified this clue. No points will be awarded. Team '+teams[active]+', you still have control. Please select another category and number.';$('turnStatus').textContent=m;$('responseText').textContent=m;say(m,()=>{if(voiceOn&&phase==='board')startListening();},'surprised');scheduleBoardReminder();return true;}
 function handleTabletGameAction(p){
  const action=String(p.action||'');
  try{
@@ -854,7 +796,8 @@ function handleTabletGameAction(p){
   else if(action==='go_board')$('goBoard').click();
   else if(action==='reset')$('reset').click();
   else if(action==='voice_on'){if(!voiceOn)$('voiceToggle').click();}
-  else if(action==='pause_voice')$('pauseVoice').click();
+  else if(action==='pause_voice'||action==='toggle_game_voice')$('pauseVoice').click();
+  else if(action==='disqualify'){if(!disqualifyCurrentClue())showRemoteNotice('NO ACTIVE CLUE','Disqualify is available after a clue has been selected and before the final round.');}
   else if(action==='score_adjust'){
    const team=Number(p.team),delta=Number(p.delta);
    if([0,1].includes(team)&&Number.isInteger(delta)&&Math.abs(delta)<=1000){
@@ -899,7 +842,7 @@ async function activateLaptopSession(){
   const bank=await remoteRequest('/questions');
   if(!Array.isArray(bank.questions)||!bank.questions.length)throw new Error('Supabase returned no active questions. Check public.game_questions and its active flags.');
   questions=bank.questions.map(q=>({...q,value:Number(q.value),used:false}));
-  draw();
+  assignThinkHardPosition();draw();
   if(audioTestRequested){
    setTimeout(launchThinkHarderAudioTest,500);
   }

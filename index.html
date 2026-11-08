@@ -213,7 +213,7 @@ function bonusAnswerMatches(t){
 }
 
 function openClue(q){
- if(!q||q.used||phase!=='board')return;clearBoardReminder();if(q===thinkHardQuestion&&!thinkHardUsed){q.used=true;thinkHardUsed=true;draw();const special=thinkBonusBank[q.category];publishHostAnswer({...q,answer:special.answer,alternatives:special.alts||[]});beginBonus(q);return;}current=q;q.used=true;attempts=0;clueOwner=active;lastScoringTeam=active;draw();phase='clue_reading';
+ if(!q||q.used||phase!=='board')return;clearBoardReminder();stopListening();if(q===thinkHardQuestion&&!thinkHardUsed){q.used=true;thinkHardUsed=true;draw();const special=thinkBonusBank[q.category];publishHostAnswer({...q,answer:special.answer,alternatives:special.alts||[]});beginBonus(q);return;}current=q;q.used=true;attempts=0;clueOwner=active;lastScoringTeam=active;draw();phase='clue_reading';
  pendingDecision=null;pendingTranscript='';
  $('teamResponse0').textContent=teams[0]+': —';$('teamResponse1').textContent=teams[1]+': —';
  $('heading').textContent=q.category+' for '+q.value;$('clue').textContent=q.clue;
